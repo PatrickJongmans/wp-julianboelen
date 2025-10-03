@@ -1,0 +1,17 @@
+/*
+Theme Name: JulianBoelen
+Description: A modern WordPress theme built with Tailwind CSS
+Version: 1.0.0
+Author: TF Development Team
+Author URI: https://tftheme.com
+Text Domain: julianboelen
+License: GPL-2.0+
+License URI: http://www.gnu.org/licenses/gpl-2.0.txt
+
+This theme, like WordPress, is licensed under the GPL.
+Use it to make something cool, have fun, and share what you've learned with others.
+*/
+
+/* This file serves as the main WordPress theme identifier.
+   All actual styles are compiled from src/style.css using Tailwind CSS
+   and output to assets/css/style.css */

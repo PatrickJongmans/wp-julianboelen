@@ -1,0 +1,131 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Primary Color Palette */
+        --color-primary-50: 246 244 252;
+    --color-primary-100: 237 233 249;
+    --color-primary-200: 219 211 243;
+    --color-primary-300: 184 166 231;
+    --color-primary-400: 148 122 220;
+    --color-primary-500: 77 33 196;
+    --color-primary-600: 69 30 176;
+    --color-primary-700: 62 26 157;
+    --color-primary-800: 54 23 137;
+    --color-primary-900: 46 20 118;
+    --color-primary-100: 219 234 254;
+    --color-primary-200: 191 219 254;
+    --color-primary-300: 147 197 253;
+    --color-primary-400: 96 165 250;
+    --color-primary-500: 59 130 246;
+    --color-primary-600: 37 99 235;
+    --color-primary-700: 29 78 216;
+    --color-primary-800: 30 64 175;
+    --color-primary-900: 30 58 138;
+    --color-primary: var(--color-primary-600);
+
+    /* Secondary Color Palette */
+        --color-primary-50: 244 251 245;
+    --color-primary-100: 233 247 236;
+    --color-primary-200: 211 238 216;
+    --color-primary-300: 166 221 177;
+    --color-primary-400: 122 205 138;
+    --color-primary-500: 33 171 60;
+    --color-primary-600: 30 154 54;
+    --color-primary-700: 26 137 48;
+    --color-primary-800: 23 120 42;
+    --color-primary-900: 20 103 36;
+    --color-secondary-100: 220 252 231;
+    --color-secondary-200: 187 247 208;
+    --color-secondary-300: 134 239 172;
+    --color-secondary-400: 74 222 128;
+    --color-secondary-500: 34 197 94;
+    --color-secondary-600: 22 163 74;
+    --color-secondary-700: 21 128 61;
+    --color-secondary-800: 22 101 52;
+    --color-secondary-900: 20 83 45;
+    --color-secondary: var(--color-secondary-600);
+
+    /* Typography */
+    --font-family-heading: 'Source Sans Pro', Georgia, serif;
+    --font-family-body: 'Inter', sans-serif;
+
+    /* Spacing */
+    --container-padding: 1rem;
+    --section-padding: 4rem 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font-family-body);
+    line-height: 1.6;
+    color: rgb(55 65 81);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-family-heading);
+    font-weight: 700;
+    line-height: 1.2;
+    color: rgb(17 24 39);
+  }
+}
+
+@layer components {
+  .container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .btn {
+    @apply inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+
+  .btn-primary {
+    @apply btn bg-primary text-white hover:bg-primary-700 focus:ring-primary-500;
+  }
+
+  .btn-secondary {
+    @apply btn bg-secondary text-white hover:bg-secondary-700 focus:ring-secondary-500;
+  }
+
+  .btn-outline {
+    @apply btn bg-transparent border-primary text-primary hover:bg-primary hover:text-white focus:ring-primary-500;
+  }
+
+  .section {
+    @apply py-16;
+  }
+
+  .section-title {
+    @apply text-3xl md:text-4xl font-bold text-center mb-8;
+  }
+
+  .card {
+    @apply bg-white rounded-lg shadow-md overflow-hidden;
+  }
+
+  .card-body {
+    @apply p-6;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .grid-auto-fit {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+  .grid-auto-fill {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+}

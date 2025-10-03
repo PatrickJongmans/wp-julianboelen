@@ -1,0 +1,18 @@
+{
+  "name": "julianboelen",
+  "version": "1.0.0",
+  "description": "Custom WordPress theme with Tailwind CSS",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tailwindcss -i ./src/style.css -o ./assets/css/style.css --watch",
+    "build": "tailwindcss -i ./src/style.css -o ./assets/css/style.css --minify",
+    "build-prod": "NODE_ENV=production npm run build"
+  },
+  "devDependencies": {
+    "tailwindcss": "^4.1.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ]
+}
