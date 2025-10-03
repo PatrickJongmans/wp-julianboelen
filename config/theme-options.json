@@ -1,0 +1,40 @@
+{
+  "header_logo": {
+    "type": "image"
+  },
+  "footer_logo": {
+    "type": "image"
+  },
+  "company_name": {
+    "type": "string"
+  },
+  "company_description": {
+    "type": "textarea"
+  },
+  "company_information": {
+    "type": "html"
+  },
+  "company_address": {
+    "type": "string"
+  },
+  "company_phone": {
+    "type": "string"
+  },
+  "company_email": {
+    "type": "string"
+  },
+  "social_links": {
+    "type": "array",
+    "items": {
+      "platform": {
+        "type": "string"
+      },
+      "url": {
+        "type": "url"
+      },
+      "icon": {
+        "type": "image"
+      }
+    }
+  }
+}
