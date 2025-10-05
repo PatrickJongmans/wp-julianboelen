@@ -1,104 +1,137 @@
+```php
 <?php
 /**
- * Header Template
+ * The header for our theme
  *
- * @package JulianboelenTheme
- * @version 1.0.0
+ * This is the template that displays all of the <head> section and everything up until <div id="content">
+ *
+ * @package ThemeForge
  */
 
-// Prevent direct access
-if (!defined('ABSPATH')) {
-    exit;
-}
 ?>
-<!DOCTYPE html>
+<!doctype html>
 <html <?php language_attributes(); ?>>
 <head>
-    <meta charset="<?php bloginfo('charset'); ?>">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <link rel="profile" href="http://gmpg.org/xfn/11">
-    <?php wp_head(); ?>
+	<meta charset="<?php bloginfo( 'charset' ); ?>">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="profile" href="https://gmpg.org/xfn/11">
+
+	<?php wp_head(); ?>
 </head>
 
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>
 
+<a class="skip-link screen-reader-text" href="#primary"><?php esc_html_e( 'Skip to content', 'themeforge' ); ?></a>
+
 <div id="page" class="site">
-    <a class="skip-link screen-reader-text" href="#content"><?php _e('Skip to content', 'julianboelen'); ?></a>
 
-    <header id="masthead" class="site-header">
-        <div class="container">
-            <div class="flex items-center justify-between py-4">
-                <!-- Site Branding -->
-                <div class="site-branding">
-                    <?php
-                    $theme_options = isset($julianboelen_theme_options) ? $julianboelen_theme_options : null;
-                    
-                    if ($theme_options && $theme_options->get_option('header_logo')) {
-                        $logo_url = $theme_options->get_option('header_logo');
-                        $site_name = get_bloginfo('name');
-                        ?>
-                        <a href="<?php echo esc_url(home_url('/')); ?>" rel="home" class="custom-logo-link">
-                            <img src="<?php echo esc_url($logo_url); ?>" alt="<?php echo esc_attr($site_name); ?>" class="custom-logo h-12 w-auto">
-                        </a>
-                        <?php
-                    } elseif (has_custom_logo()) {
-                        the_custom_logo();
-                    } else {
-                        ?>
-                        <h1 class="site-title text-2xl font-bold">
-                            <a href="<?php echo esc_url(home_url('/')); ?>" rel="home" class="text-primary hover:text-primary-700 transition-colors">
-                                <?php bloginfo('name'); ?>
-                            </a>
-                        </h1>
-                        <?php
-                        $description = get_bloginfo('description', 'display');
-                        if ($description || is_customize_preview()) {
-                            ?>
-                            <p class="site-description text-gray-600 text-sm mt-1"><?php echo $description; ?></p>
-                            <?php
-                        }
-                    }
-                    ?>
-                </div>
-
-                <!-- Primary Navigation -->
-                <nav id="site-navigation" class="main-navigation hidden lg:block">
-                    <?php
-                    wp_nav_menu(array(
-                        'theme_location' => 'primary',
-                        'menu_id'        => 'primary-menu',
-                        'container'      => false,
-                        'menu_class'     => 'flex space-x-6 list-none m-0 p-0',
-                        'link_before'    => '<span class="menu-text">',
-                        'link_after'     => '</span>',
-                        'fallback_cb'    => false,
-                    ));
-                    ?>
-                </nav>
-
-                <!-- Mobile Menu Toggle -->
-                <button class="mobile-menu-toggle lg:hidden p-2 text-gray-700 hover:text-primary transition-colors" type="button" aria-label="<?php _e('Toggle navigation', 'julianboelen'); ?>">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
-                </button>
+<header id="masthead" class="site-header w-full bg-white border-b border-gray-200">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16 md:h-20">
+      
+      <!-- Logo -->
+      <div class="site-branding flex items-center space-x-2">
+        <?php
+        if ( has_custom_logo() ) {
+            the_custom_logo();
+        } else {
+            ?>
+            <div class="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="3" y="3" width="8" height="8" rx="1"/>
+                <rect x="13" y="3" width="8" height="8" rx="1"/>
+                <rect x="3" y="13" width="8" height="8" rx="1"/>
+                <rect x="13" y="13" width="8" height="8" rx="1"/>
+              </svg>
             </div>
+            <?php
+        }
+        ?>
+        <span class="text-2xl font-semibold text-gray-900">
+          <a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home"><?php bloginfo( 'name' ); ?></a>
+        </span>
+      </div>
 
-            <!-- Mobile Navigation -->
-            <nav class="mobile-navigation lg:hidden hidden">
-                <?php
-                wp_nav_menu(array(
-                    'theme_location' => 'primary',
-                    'menu_id'        => 'mobile-menu',
-                    'container'      => false,
-                    'menu_class'     => 'mobile-menu py-4 space-y-2',
-                    'fallback_cb'    => false,
-                ));
-                ?>
-            </nav>
-        </div>
-    </header>
+      <!-- Desktop Navigation -->
+      <nav id="site-navigation" class="main-navigation hidden lg:flex items-center space-x-8" role="navigation" aria-label="<?php esc_attr_e( 'Primary Menu', 'themeforge' ); ?>">
+        <?php
+        if ( class_exists( 'TF_Primary_Nav_Walker' ) ) {
+          wp_nav_menu(
+            array(
+              'theme_location' => 'primary',
+              'menu_id'        => 'primary-menu',
+              'container'      => false,
+              'menu_class'     => 'nav-menu flex items-center space-x-8',
+              'walker'         => new TF_Primary_Nav_Walker(),
+              'fallback_cb'    => false,
+            )
+          );
+        } else {
+          wp_nav_menu(
+            array(
+              'theme_location' => 'primary',
+              'menu_id'        => 'primary-menu',
+              'container'      => false,
+              'menu_class'     => 'nav-menu flex items-center space-x-8',
+              'fallback_cb'    => false,
+            )
+          );
+        }
+        ?>
+      </nav>
 
-    <main id="content" class="site-main">
+      <!-- CTA Button -->
+      <div class="header-cta hidden lg:block">
+        <a href="<?php echo esc_url( home_url( '/contact' ) ); ?>" class="inline-block px-8 py-3 bg-gradient-to-r from-green-400 to-green-500 text-gray-900 font-medium rounded-full hover:from-green-500 hover:to-green-600 transition-all duration-300 shadow-sm hover:shadow-md">
+          <?php esc_html_e( 'Contact', 'themeforge' ); ?>
+        </a>
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <button id="mobile-menu-toggle" class="lg:hidden p-2 text-gray-700 hover:text-gray-900" aria-label="<?php esc_attr_e( 'Toggle menu', 'themeforge' ); ?>" aria-expanded="false" aria-controls="mobile-menu">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Navigation -->
+  <nav id="mobile-menu" class="mobile-navigation lg:hidden hidden bg-white border-t border-gray-200" role="navigation" aria-label="<?php esc_attr_e( 'Mobile Menu', 'themeforge' ); ?>">
+    <div class="container mx-auto px-4 py-4">
+      <?php
+      if ( class_exists( 'TF_Mobile_Nav_Walker' ) ) {
+        wp_nav_menu(
+          array(
+            'theme_location' => 'primary',
+            'menu_id'        => 'mobile-menu-list',
+            'container'      => false,
+            'menu_class'     => 'mobile-nav-menu space-y-2',
+            'walker'         => new TF_Mobile_Nav_Walker(),
+            'fallback_cb'    => false,
+          )
+        );
+      } else {
+        wp_nav_menu(
+          array(
+            'theme_location' => 'primary',
+            'menu_id'        => 'mobile-menu-list',
+            'container'      => false,
+            'menu_class'     => 'mobile-nav-menu space-y-2',
+            'fallback_cb'    => false,
+          )
+        );
+      }
+      ?>
+      <div class="mt-4 pt-4 border-t border-gray-200">
+        <a href="<?php echo esc_url( home_url( '/contact' ) ); ?>" class="block w-full text-center px-8 py-3 bg-gradient-to-r from-green-400 to-green-500 text-gray-900 font-medium rounded-full hover:from-green-500 hover:to-green-600 transition-all duration-300 shadow-sm hover:shadow-md">
+          <?php esc_html_e( 'Contact', 'themeforge' ); ?>
+        </a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div id="content" class="site-content">
+```
