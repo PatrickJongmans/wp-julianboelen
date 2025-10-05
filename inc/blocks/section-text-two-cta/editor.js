@@ -1,3 +1,621 @@
-{
-  "content": "(function() {\n    const { registerBlockType } = wp.blocks;\n    const { RichText, InspectorControls, useBlockProps, LinkControl } = wp.blockEditor;\n    const { Button, PanelBody, PanelRow, SelectControl, ColorPicker, TextControl, BaseControl, TextareaControl } = wp.components;\n    const { Fragment, createElement, useState } = wp.element;\n    const { __ } = wp.i18n;\n\n    registerBlockType('julianboelen/section-text-two-cta', {\n        apiVersion: 2,\n        title: __('Section Text Two CTA', 'julianboelen'),\n        icon: 'layout',\n        category: 'julianboelen-blocks',\n        description: __('A sophisticated three-column layout with about section and two CTA cards', 'julianboelen'),\n        supports: {\n            html: false,\n            anchor: true,\n            customClassName: true,\n            inserter: true,\n            multiple: true,\n            reusable: true,\n            spacing: {\n                padding: true,\n                margin: true\n            },\n            typography: {\n                fontSize: true,\n                lineHeight: true\n            }\n        },\n        \n        attributes: {\n            aboutTitle: { type: 'string', default: 'Over ons' },\n            aboutParagraph1: { type: 'string', default: 'We koppelen IT-specialisten die op zoek zijn naar een nieuwe uitdaging of een volgende stap in hun carrière aan ambitieuze bedrijven. Dat doen we sinds 2008, en inmiddels hebben we stevig naam gemaakt binnen de Nederlandse IT-markt.' },\n            aboutParagraph2: { type: 'string', default: 'We werken vanuit een mooie plek in Den Haag met een bevlogen team van servicegerichte recruitment consultants die elk een eigen expertiseveld en regio hebben. Van daaruit begeleiden ze kandidaten in het traject richting een nieuwe uitdaging.' },\n            aboutParagraph3: { type: 'string', default: 'Inmiddels hebben we al meer dan 5000 specialisten succesvol kunnen verbinden aan uiteenlopende organisaties. En we zijn nog lang niet klaar.' },\n            aboutBackgroundColor: { type: 'string', default: '#f9fafb' },\n            aboutTextColor: { type: 'string', default: '#374151' },\n            card1Title: { type: 'string', default: 'Voor IT-professionals' },\n            card1Description: { type: 'string', default: 'Ben je freelance IT\\'er of op zoek naar een nieuwe interim opdracht? Bij StarApple vind je uitdagende projecten die bij je passen — bij toonaangevende opdrachtgevers in overheid, corporate en tech.' },\n            card1Url: { type: 'string', default: '#' },\n            card1Target: { type: 'string', default: '' },\n            card1Rel: { type: 'string', default: '' },\n            card1GradientFrom: { type: 'string', default: '#a855f7' },\n            card1GradientTo: { type: 'string', default: '#9333ea' },\n            card1TextColor: { type: 'string', default: '#ffffff' },\n            card1ButtonColor: { type: 'string', default: '#9333ea' },\n            card2Title: { type: 'string', default: 'Voor opdrachtgevers' },\n            card2Description: { type: 'string', default: 'Op zoek naar tijdelijke IT-versterking of een expert voor jouw project? StarApple levert snel de juiste professional — met diepgaande marktkennis en een persoonlijke aanpak.' },\n            card2Url: { type: 'string', default: '#' },\n            card2Target: { type: 'string', default: '' },\n            card2Rel: { type: 'string', default: '' },\n            card2GradientFrom: { type: 'string', default: '#4ade80' },\n            card2GradientTo: { type: 'string', default: '#22c55e' },\n            card2TextColor: { type: 'string', default: '#111827' },\n            card2ButtonColor: { type: 'string', default: '#16a34a' },\n            containerMaxWidth: { type: 'string', default: '7xl' },\n            verticalPadding: { type: 'string', default: 'default' },\n            cardGap: { type: 'string', default: 'default' },\n            borderRadius: { type: 'string', default: '3xl' }\n        },\n\n        edit: function(props) {\n            const { attributes, setAttributes } = props;\n            const { \n                aboutTitle,\n                aboutParagraph1,\n                aboutParagraph2,\n                aboutParagraph3,\n                aboutBackgroundColor,\n                aboutTextColor,\n                card1Title,\n                card1Description,\n                card1Url,\n                card1Target,\n                card1Rel,\n                card1GradientFrom,\n                card1GradientTo,\n                card1TextColor,\n                card1ButtonColor,\n                card2Title,\n                card2Description,\n                card2Url,\n                card2Target,\n                card2Rel,\n                card2GradientFrom,\n                card2GradientTo,\n                card2TextColor,\n                card2ButtonColor,\n                containerMaxWidth,\n                verticalPadding,\n                cardGap,\n                borderRadius\n            } = attributes;\n\n            const [showCard1LinkControl, setShowCard1LinkControl] = useState(false);\n            const [showCard2LinkControl, setShowCard2LinkControl] = useState(false);\n            const [card1LinkValue, setCard1LinkValue] = useState({\n                url: card1Url,\n                opensInNewTab: card1Target === '_blank'\n            });\n            const [card2LinkValue, setCard2LinkValue] = useState({\n                url: card2Url,\n                opensInNewTab: card2Target === '_blank'\n            });\n\n            // SOPHISTICATED helper functions\n            const getContrastColor = (hexColor) => {\n                const hex = hexColor.replace('#', '');\n                const r = parseInt(hex.substr(0, 2), 16);\n                const g = parseInt(hex.substr(2, 2), 16);\n                const b = parseInt(hex.substr(4, 2), 16);\n                const brightness = (r * 299 + g * 587 + b * 114) / 1000;\n                return brightness > 128 ? '#1f2937' : '#ffffff';\n            };\n\n            const getMaxWidthClass = () => {\n                const widths = {\n                    '5xl': 'max-w-5xl',\n                    '6xl': 'max-w-6xl',\n                    '7xl': 'max-w-7xl',\n                    'full': 'max-w-full'\n                };\n                return widths[containerMaxWidth] || 'max-w-7xl';\n            };\n\n            const getPaddingClass = () => {\n                const paddings = {\n                    'small': 'py-6 sm:py-8',\n                    'default': 'py-8 sm:py-12',\n                    'large': 'py-12 sm:py-16',\n                    'xlarge': 'py-16 sm:py-20'\n                };\n                return paddings[verticalPadding] || 'py-8 sm:py-12';\n            };\n\n            const getGapClass = () => {\n                const gaps = {\n                    'small': 'gap-3 lg:gap-4',\n                    'default': 'gap-4 lg:gap-6',\n                    'large': 'gap-6 lg:gap-8'\n                };\n                return gaps[cardGap] || 'gap-4 lg:gap-6';\n            };\n\n            const getBorderRadiusClass = () => {\n                const radii = {\n                    'lg': 'rounded-lg',\n                    'xl': 'rounded-xl',\n                    '2xl': 'rounded-2xl',\n                    '3xl': 'rounded-3xl'\n                };\n                return radii[borderRadius] || 'rounded-3xl';\n            };\n\n            const handleCard1LinkChange = (newLink) => {\n                setCard1LinkValue(newLink);\n                setAttributes({\n                    card1Url: newLink.url,\n                    card1Target: newLink.opensInNewTab ? '_blank' : '',\n                    card1Rel: newLink.opensInNewTab ? 'noopener' : ''\n                });\n            };\n\n            const handleCard2LinkChange = (newLink) => {\n                setCard2LinkValue(newLink);\n                setAttributes({\n                    card2Url: newLink.url,\n                    card2Target: newLink.opensInNewTab ? '_blank' : '',\n                    card2Rel: newLink.opensInNewTab ? 'noopener' : ''\n                });\n            };\n\n            // ADVANCED editor preview\n            return createElement(Fragment, null,\n                // SOPHISTICATED InspectorControls\n                createElement(InspectorControls, null,\n                    // About Section Settings\n                    createElement(PanelBody, { \n                        title: __('About Section Settings', 'julianboelen'), \n                        initialOpen: true \n                    },\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%' } },\n                                createElement(TextControl, {\n                                    label: __('About Title', 'julianboelen'),\n                                    value: aboutTitle,\n                                    onChange: (value) => setAttributes({ aboutTitle: value })\n                                })\n                            )\n                        ),\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%' } },\n                                createElement(BaseControl, {\n                                    label: __('About Background Color', 'julianboelen')\n                                },\n                                    createElement(ColorPicker, {\n                                        color: aboutBackgroundColor,\n                                        onChange: (color) => setAttributes({ aboutBackgroundColor: color.hex }),\n                                        disableAlpha: false\n                                    })\n                                )\n                            )\n                        ),\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%', marginTop: '20px' } },\n                                createElement(BaseControl, {\n                                    label: __('About Text Color', 'julianboelen')\n                                },\n                                    createElement(ColorPicker, {\n                                        color: aboutTextColor,\n                                        onChange: (color) => setAttributes({ aboutTextColor: color.hex }),\n                                        disableAlpha: false\n                                    })\n                                )\n                            )\n                        )\n                    ),\n                    \n                    // Card 1 Settings\n                    createElement(PanelBody, { \n                        title: __('Card 1 Settings (Purple)', 'julianboelen'), \n                        initialOpen: false \n                    },\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%' } },\n                                createElement(TextControl, {\n                                    label: __('Card 1 Title', 'julianboelen'),\n                                    value: card1Title,\n                                    onChange: (value) => setAttributes({ card1Title: value })\n                                })\n                            )\n                        ),\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%' } },\n                                createElement(TextareaControl, {\n                                    label: __('Card 1 Description', 'julianboelen'),\n                                    value: card1Description,\n                                    onChange: (value) => setAttributes({ card1Description: value }),\n                                    rows: 4\n                                })\n                            )\n                        ),\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%' } },\n                                createElement(BaseControl, {\n                                    label: __('Gradient From Color', 'julianboelen')\n                                },\n                                    createElement(ColorPicker, {\n                                        color: card1GradientFrom,\n                                        onChange: (color) => setAttributes({ card1GradientFrom: color.hex }),\n                                        disableAlpha: false\n                                    })\n                                )\n                            )\n                        ),\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%', marginTop: '20px' } },\n                                createElement(BaseControl, {\n                                    label: __('Gradient To Color', 'julianboelen')\n                                },\n                                    createElement(ColorPicker, {\n                                        color: card1GradientTo,\n                                        onChange: (color) => setAttributes({ card1GradientTo: color.hex }),\n                                        disableAlpha: false\n                                    })\n                                )\n                            )\n                        ),\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%', marginTop: '20px' } },\n                                createElement(BaseControl, {\n                                    label: __('Text Color', 'julianboelen')\n                                },\n                                    createElement(ColorPicker, {\n                                        color: card1TextColor,\n                                        onChange: (color) => setAttributes({ card1TextColor: color.hex }),\n                                        disableAlpha: false\n                                    })\n                                )\n                            )\n                        ),\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%', marginTop: '20px' } },\n                                createElement(BaseControl, {\n                                    label: __('Button Icon Color', 'julianboelen')\n                                },\n                                    createElement(ColorPicker, {\n                                        color: card1ButtonColor,\n                                        onChange: (color) => setAttributes({ card1ButtonColor: color.hex }),\n                                        disableAlpha: false\n                                    })\n                                )\n                            )\n                        ),\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%', marginTop: '20px' } },\n                                createElement(Button, {\n                                    variant: showCard1LinkControl ? 'secondary' : 'primary',\n                                    onClick: () => setShowCard1LinkControl(!showCard1LinkControl)\n                                }, showCard1LinkControl ? __('Hide Link Settings', 'julianboelen') : __('Edit Link', 'julianboelen')),\n                                showCard1LinkControl && createElement('div', { style: { marginTop: '10px' } },\n                                    createElement(LinkControl, {\n                                        value: card1LinkValue,\n                                        onChange: handleCard1LinkChange\n                                    })\n                                )\n                            )\n                        )\n                    ),\n                    \n                    // Card 2 Settings\n                    createElement(PanelBody, { \n                        title: __('Card 2 Settings (Green)', 'julianboelen'), \n                        initialOpen: false \n                    },\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%' } },\n                                createElement(TextControl, {\n                                    label: __('Card 2 Title', 'julianboelen'),\n                                    value: card2Title,\n                                    onChange: (value) => setAttributes({ card2Title: value })\n                                })\n                            )\n                        ),\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%' } },\n                                createElement(TextareaControl, {\n                                    label: __('Card 2 Description', 'julianboelen'),\n                                    value: card2Description,\n                                    onChange: (value) => setAttributes({ card2Description: value }),\n                                    rows: 4\n                                })\n                            )\n                        ),\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%' } },\n                                createElement(BaseControl, {\n                                    label: __('Gradient From Color', 'julianboelen')\n                                },\n                                    createElement(ColorPicker, {\n                                        color: card2GradientFrom,\n                                        onChange: (color) => setAttributes({ card2GradientFrom: color.hex }),\n                                        disableAlpha: false\n                                    })\n                                )\n                            )\n                        ),\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%', marginTop: '20px' } },\n                                createElement(BaseControl, {\n                                    label: __('Gradient To Color', 'julianboelen')\n                                },\n                                    createElement(ColorPicker, {\n                                        color: card2GradientTo,\n                                        onChange: (color) => setAttributes({ card2GradientTo: color.hex }),\n                                        disableAlpha: false\n                                    })\n                                )\n                            )\n                        ),\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%', marginTop: '20px' } },\n                                createElement(BaseControl, {\n                                    label: __('Text Color', 'julianboelen')\n                                },\n                                    createElement(ColorPicker, {\n                                        color: card2TextColor,\n                                        onChange: (color) => setAttributes({ card2TextColor: color.hex }),\n                                        disableAlpha: false\n                                    })\n                                )\n                            )\n                        ),\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%', marginTop: '20px' } },\n                                createElement(BaseControl, {\n                                    label: __('Button Icon Color', 'julianboelen')\n                                },\n                                    createElement(ColorPicker, {\n                                        color: card2ButtonColor,\n                                        onChange: (color) => setAttributes({ card2ButtonColor: color.hex }),\n                                        disableAlpha: false\n                                    })\n                                )\n                            )\n                        ),\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%', marginTop: '20px' } },\n                                createElement(Button, {\n                                    variant: showCard2LinkControl ? 'secondary' : 'primary',\n                                    onClick: () => setShowCard2LinkControl(!showCard2LinkControl)\n                                }, showCard2LinkControl ? __('Hide Link Settings', 'julianboelen') : __('Edit Link', 'julianboelen')),\n                                showCard2LinkControl && createElement('div', { style: { marginTop: '10px' } },\n                                    createElement(LinkControl, {\n                                        value: card2LinkValue,\n                                        onChange: handleCard2LinkChange\n                                    })\n                                )\n                            )\n                        )\n                    ),\n                    \n                    // Layout Settings\n                    createElement(PanelBody, { \n                        title: __('Layout Settings', 'julianboelen'), \n                        initialOpen: false \n                    },\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%' } },\n                                createElement(SelectControl, {\n                                    label: __('Container Max Width', 'julianboelen'),\n                                    value: containerMaxWidth,\n                                    options: [\n                                        { label: __('5XL (1024px)', 'julianboelen'), value: '5xl' },\n                                        { label: __('6XL (1152px)', 'julianboelen'), value: '6xl' },\n                                        { label: __('7XL (1280px)', 'julianboelen'), value: '7xl' },\n                                        { label: __('Full Width', 'julianboelen'), value: 'full' }\n                                    ],\n                                    onChange: (value) => setAttributes({ containerMaxWidth: value })\n                                })\n                            )\n                        ),\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%' } },\n                                createElement(SelectControl, {\n                                    label: __('Vertical Padding', 'julianboelen'),\n                                    value: verticalPadding,\n                                    options: [\n                                        { label: __('Small', 'julianboelen'), value: 'small' },\n                                        { label: __('Default', 'julianboelen'), value: 'default' },\n                                        { label: __('Large', 'julianboelen'), value: 'large' },\n                                        { label: __('Extra Large', 'julianboelen'), value: 'xlarge' }\n                                    ],\n                                    onChange: (value) => setAttributes({ verticalPadding: value })\n                                })\n                            )\n                        ),\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%' } },\n                                createElement(SelectControl, {\n                                    label: __('Card Gap', 'julianboelen'),\n                                    value: cardGap,\n                                    options: [\n                                        { label: __('Small', 'julianboelen'), value: 'small' },\n                                        { label: __('Default', 'julianboelen'), value: 'default' },\n                                        { label: __('Large', 'julianboelen'), value: 'large' }\n                                    ],\n                                    onChange: (value) => setAttributes({ cardGap: value })\n                                })\n                            )\n                        ),\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%' } },\n                                createElement(SelectControl, {\n                                    label: __('Border Radius', 'julianboelen'),\n                                    value: borderRadius,\n                                    options: [\n                                        { label: __('Large', 'julianboelen'), value: 'lg' },\n                                        { label: __('Extra Large', 'julianboelen'), value: 'xl' },\n                                        { label: __('2XL', 'julianboelen'), value: '2xl' },\n                                        { label: __('3XL', 'julianboelen'), value: '3xl' }\n                                    ],\n                                    onChange: (value) => setAttributes({ borderRadius: value })\n                                })\n                            )\n                        )\n                    )\n                ),\n                \n                // PROFESSIONAL editor preview\n                createElement('div', { \n                    ...useBlockProps({\n                        className: 'section-text-two-cta-editor-preview',\n                        style: {\n                            border: '2px dashed #ccc',\n                            borderRadius: '8px',\n                            padding: '20px',\n                            backgroundColor: '#f5f5f5'\n                        }\n                    })\n                },\n                    createElement('div', { \n                        className: `w-full ${getMaxWidthClass()} mx-auto px-4 ${getPaddingClass()}`\n                    },\n                        createElement('div', { \n                            className: `grid grid-cols-1 lg:grid-cols-2 ${getGapClass()}`\n                        },\n                            // Left Column - About Us\n                            createElement('div', { \n                                className: `${getBorderRadiusClass()} p-8 sm:p-10 lg:p-12 shadow-sm`,\n                                style: {\n                                    backgroundColor: aboutBackgroundColor,\n                                    color: aboutTextColor\n                                }\n                            },\n                                createElement(RichText, {\n                                    tagName: 'h2',\n                                    className: 'text-3xl sm:text-4xl font-bold mb-6',\n                                    value: aboutTitle,\n                                    onChange: (value) => setAttributes({ aboutTitle: value }),\n                                    placeholder: __('Enter about title...', 'julianboelen')\n                                }),\n                                createElement('div', { className: 'space-y-6 leading-relaxed' },\n                                    createElement(RichText, {\n                                        tagName: 'p',\n                                        value: aboutParagraph1,\n                                        onChange: (value) => setAttributes({ aboutParagraph1: value }),\n                                        placeholder: __('Enter first paragraph...', 'julianboelen')\n                                    }),\n                                    createElement(RichText, {\n                                        tagName: 'p',\n                                        value: aboutParagraph2,\n                                        onChange: (value) => setAttributes({ aboutParagraph2: value }),\n                                        placeholder: __('Enter second paragraph...', 'julianboelen')\n                                    }),\n                                    createElement(RichText, {\n                                        tagName: 'p',\n                                        value: aboutParagraph3,\n                                        onChange: (value) => setAttributes({ aboutParagraph3: value }),\n                                        placeholder: __('Enter third paragraph...', 'julianboelen')\n                                    })\n                                )\n                            ),\n                            \n                            // Right Column - Two Stacked Cards\n                            createElement('div', { className: `grid grid-cols-1 ${getGapClass()}` },\n                                // Card 1 - IT Professionals\n                                createElement('div', { \n                                    className: `${getBorderRadiusClass()} p-8 sm:p-10 lg:p-12 shadow-sm relative`,\n                                    style: {\n                                        background: `linear-gradient(to bottom right, ${card1GradientFrom}, ${card1GradientTo})`,\n                                        color: card1TextColor\n                                    }\n                                },\n                                    createElement(RichText, {\n                                        tagName: 'h2',\n                                        className: 'text-3xl sm:text-4xl font-bold mb-6',\n                                        value: card1Title,\n                                        onChange: (value) => setAttributes({ card1Title: value }),\n                                        placeholder: __('Enter card 1 title...', 'julianboelen')\n                                    }),\n                                    createElement(RichText, {\n                                        tagName: 'p',\n                                        className: 'text-base sm:text-lg leading-relaxed mb-4',\n                                        value: card1Description,\n                                        onChange: (value) => setAttributes({ card1Description: value }),\n                                        placeholder: __('Enter card 1 description...', 'julianboelen')\n                                    }),\n                                    createElement('button', {\n                                        className: 'absolute bottom-8 right-8 w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow',\n                                        style: { cursor: 'pointer' }\n                                    },\n                                        createElement('svg', {\n                                            className: 'w-6 h-6',\n                                            fill: 'none',\n                                            stroke: card1ButtonColor,\n                                            viewBox: '0 0 24 24',\n                                            style: { strokeWidth: '2.5' }\n                                        },\n                                            createElement('path', {\n                                                strokeLinecap: 'round',\n                                                strokeLinejoin: 'round',\n                                                d: 'M17 8l4 4m0 0l-4 4m4-4H3'\n                                            })\n                                        )\n                                    )\n                                ),\n                                \n                                // Card 2 - Opdrachtgevers\n                                createElement('div', { \n                                    className: `${getBorderRadiusClass()} p-8 sm:p-10 lg:p-12 shadow-sm relative`,\n                                    style: {\n                                        background: `linear-gradient(to bottom right, ${card2GradientFrom}, ${card2GradientTo})`,\n                                        color: card2TextColor\n                                    }\n                                },\n                                    createElement(RichText, {\n                                        tagName: 'h2',\n                                        className: 'text-3xl sm:text-4xl font-bold mb-6',\n                                        value: card2Title,\n                                        onChange: (value) => setAttributes({ card2Title: value }),\n                                        placeholder: __('Enter card 2 title...', 'julianboelen')\n                                    }),\n                                    createElement(RichText, {\n                                        tagName: 'p',\n                                        className: 'text-base sm:text-lg leading-relaxed mb-4',\n                                        value: card2Description,\n                                        onChange: (value) => setAttributes({ card2Description: value }),\n                                        placeholder: __('Enter card 2 description...', 'julianboelen')\n                                    }),\n                                    createElement('button', {\n                                        className: 'absolute bottom-8 right-8 w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow',\n                                        style: { cursor: 'pointer' }\n                                    },\n                                        createElement('svg', {\n                                            className: 'w-6 h-6',\n                                            fill: 'none',\n                                            stroke: card2ButtonColor,\n                                            viewBox: '0 0 24 24',\n                                            style: { strokeWidth: '2.5' }\n                                        },\n                                            createElement('path', {\n                                                strokeLinecap: 'round',\n                                                strokeLinejoin: 'round',\n                                                d: 'M17 8l4 4m0 0l-4 4m4-4H3'\n                                            })\n                                        )\n                                    )\n                                )\n                            )\n                        )\n                    )\n                )\n            );\n        },\n\n        save: function() {\n            return null; // Server-side rendering\n        }\n    });\n})();"
-}
+(function() {
+    const { registerBlockType } = wp.blocks;
+    const { RichText, InspectorControls, useBlockProps, LinkControl } = wp.blockEditor;
+    const { Button, PanelBody, PanelRow, SelectControl, ColorPicker, TextControl, BaseControl, TextareaControl } = wp.components;
+    const { Fragment, createElement, useState } = wp.element;
+    const { __ } = wp.i18n;
+
+    registerBlockType('julianboelen/section-text-two-cta', {
+        apiVersion: 2,
+        title: __('Section Text Two CTA', 'julianboelen'),
+        icon: 'layout',
+        category: 'julianboelen-blocks',
+        description: __('A sophisticated three-column layout with about section and two CTA cards', 'julianboelen'),
+        supports: {
+            html: false,
+            anchor: true,
+            customClassName: true,
+            inserter: true,
+            multiple: true,
+            reusable: true,
+            spacing: {
+                padding: true,
+                margin: true
+            },
+            typography: {
+                fontSize: true,
+                lineHeight: true
+            }
+        },
+        
+        attributes: {
+            aboutTitle: { type: 'string', default: 'Over ons' },
+            aboutParagraph1: { type: 'string', default: 'We koppelen IT-specialisten die op zoek zijn naar een nieuwe uitdaging of een volgende stap in hun carrière aan ambitieuze bedrijven. Dat doen we sinds 2008, en inmiddels hebben we stevig naam gemaakt binnen de Nederlandse IT-markt.' },
+            aboutParagraph2: { type: 'string', default: 'We werken vanuit een mooie plek in Den Haag met een bevlogen team van servicegerichte recruitment consultants die elk een eigen expertiseveld en regio hebben. Van daaruit begeleiden ze kandidaten in het traject richting een nieuwe uitdaging.' },
+            aboutParagraph3: { type: 'string', default: 'Inmiddels hebben we al meer dan 5000 specialisten succesvol kunnen verbinden aan uiteenlopende organisaties. En we zijn nog lang niet klaar.' },
+            aboutBackgroundColor: { type: 'string', default: '#f9fafb' },
+            aboutTextColor: { type: 'string', default: '#374151' },
+            card1Title: { type: 'string', default: 'Voor IT-professionals' },
+            card1Description: { type: 'string', default: 'Ben je freelance IT\'er of op zoek naar een nieuwe interim opdracht? Bij StarApple vind je uitdagende projecten die bij je passen — bij toonaangevende opdrachtgevers in overheid, corporate en tech.' },
+            card1Url: { type: 'string', default: '#' },
+            card1Target: { type: 'string', default: '' },
+            card1Rel: { type: 'string', default: '' },
+            card1GradientFrom: { type: 'string', default: '#a855f7' },
+            card1GradientTo: { type: 'string', default: '#9333ea' },
+            card1TextColor: { type: 'string', default: '#ffffff' },
+            card1ButtonColor: { type: 'string', default: '#9333ea' },
+            card2Title: { type: 'string', default: 'Voor opdrachtgevers' },
+            card2Description: { type: 'string', default: 'Op zoek naar tijdelijke IT-versterking of een expert voor jouw project? StarApple levert snel de juiste professional — met diepgaande marktkennis en een persoonlijke aanpak.' },
+            card2Url: { type: 'string', default: '#' },
+            card2Target: { type: 'string', default: '' },
+            card2Rel: { type: 'string', default: '' },
+            card2GradientFrom: { type: 'string', default: '#4ade80' },
+            card2GradientTo: { type: 'string', default: '#22c55e' },
+            card2TextColor: { type: 'string', default: '#111827' },
+            card2ButtonColor: { type: 'string', default: '#16a34a' },
+            containerMaxWidth: { type: 'string', default: '7xl' },
+            verticalPadding: { type: 'string', default: 'default' },
+            cardGap: { type: 'string', default: 'default' },
+            borderRadius: { type: 'string', default: '3xl' }
+        },
+
+        edit: function(props) {
+            const { attributes, setAttributes } = props;
+            const { 
+                aboutTitle,
+                aboutParagraph1,
+                aboutParagraph2,
+                aboutParagraph3,
+                aboutBackgroundColor,
+                aboutTextColor,
+                card1Title,
+                card1Description,
+                card1Url,
+                card1Target,
+                card1Rel,
+                card1GradientFrom,
+                card1GradientTo,
+                card1TextColor,
+                card1ButtonColor,
+                card2Title,
+                card2Description,
+                card2Url,
+                card2Target,
+                card2Rel,
+                card2GradientFrom,
+                card2GradientTo,
+                card2TextColor,
+                card2ButtonColor,
+                containerMaxWidth,
+                verticalPadding,
+                cardGap,
+                borderRadius
+            } = attributes;
+
+            const [showCard1LinkControl, setShowCard1LinkControl] = useState(false);
+            const [showCard2LinkControl, setShowCard2LinkControl] = useState(false);
+            const [card1LinkValue, setCard1LinkValue] = useState({
+                url: card1Url,
+                opensInNewTab: card1Target === '_blank'
+            });
+            const [card2LinkValue, setCard2LinkValue] = useState({
+                url: card2Url,
+                opensInNewTab: card2Target === '_blank'
+            });
+
+            // SOPHISTICATED helper functions
+            const getContrastColor = (hexColor) => {
+                const hex = hexColor.replace('#', '');
+                const r = parseInt(hex.substr(0, 2), 16);
+                const g = parseInt(hex.substr(2, 2), 16);
+                const b = parseInt(hex.substr(4, 2), 16);
+                const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+                return brightness > 128 ? '#1f2937' : '#ffffff';
+            };
+
+            const getMaxWidthClass = () => {
+                const widths = {
+                    '5xl': 'max-w-5xl',
+                    '6xl': 'max-w-6xl',
+                    '7xl': 'max-w-7xl',
+                    'full': 'max-w-full'
+                };
+                return widths[containerMaxWidth] || 'max-w-7xl';
+            };
+
+            const getPaddingClass = () => {
+                const paddings = {
+                    'small': 'py-6 sm:py-8',
+                    'default': 'py-8 sm:py-12',
+                    'large': 'py-12 sm:py-16',
+                    'xlarge': 'py-16 sm:py-20'
+                };
+                return paddings[verticalPadding] || 'py-8 sm:py-12';
+            };
+
+            const getGapClass = () => {
+                const gaps = {
+                    'small': 'gap-3 lg:gap-4',
+                    'default': 'gap-4 lg:gap-6',
+                    'large': 'gap-6 lg:gap-8'
+                };
+                return gaps[cardGap] || 'gap-4 lg:gap-6';
+            };
+
+            const getBorderRadiusClass = () => {
+                const radii = {
+                    'lg': 'rounded-lg',
+                    'xl': 'rounded-xl',
+                    '2xl': 'rounded-2xl',
+                    '3xl': 'rounded-3xl'
+                };
+                return radii[borderRadius] || 'rounded-3xl';
+            };
+
+            const handleCard1LinkChange = (newLink) => {
+                setCard1LinkValue(newLink);
+                setAttributes({
+                    card1Url: newLink.url,
+                    card1Target: newLink.opensInNewTab ? '_blank' : '',
+                    card1Rel: newLink.opensInNewTab ? 'noopener' : ''
+                });
+            };
+
+            const handleCard2LinkChange = (newLink) => {
+                setCard2LinkValue(newLink);
+                setAttributes({
+                    card2Url: newLink.url,
+                    card2Target: newLink.opensInNewTab ? '_blank' : '',
+                    card2Rel: newLink.opensInNewTab ? 'noopener' : ''
+                });
+            };
+
+            // ADVANCED editor preview
+            return createElement(Fragment, null,
+                // SOPHISTICATED InspectorControls
+                createElement(InspectorControls, null,
+                    // About Section Settings
+                    createElement(PanelBody, { 
+                        title: __('About Section Settings', 'julianboelen'), 
+                        initialOpen: true 
+                    },
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(TextControl, {
+                                    label: __('About Title', 'julianboelen'),
+                                    value: aboutTitle,
+                                    onChange: (value) => setAttributes({ aboutTitle: value })
+                                })
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(BaseControl, {
+                                    label: __('About Background Color', 'julianboelen')
+                                },
+                                    createElement(ColorPicker, {
+                                        color: aboutBackgroundColor,
+                                        onChange: (color) => setAttributes({ aboutBackgroundColor: color.hex }),
+                                        disableAlpha: false
+                                    })
+                                )
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%', marginTop: '20px' } },
+                                createElement(BaseControl, {
+                                    label: __('About Text Color', 'julianboelen')
+                                },
+                                    createElement(ColorPicker, {
+                                        color: aboutTextColor,
+                                        onChange: (color) => setAttributes({ aboutTextColor: color.hex }),
+                                        disableAlpha: false
+                                    })
+                                )
+                            )
+                        )
+                    ),
+                    
+                    // Card 1 Settings
+                    createElement(PanelBody, { 
+                        title: __('Card 1 Settings (Purple)', 'julianboelen'), 
+                        initialOpen: false 
+                    },
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(TextControl, {
+                                    label: __('Card 1 Title', 'julianboelen'),
+                                    value: card1Title,
+                                    onChange: (value) => setAttributes({ card1Title: value })
+                                })
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(TextareaControl, {
+                                    label: __('Card 1 Description', 'julianboelen'),
+                                    value: card1Description,
+                                    onChange: (value) => setAttributes({ card1Description: value }),
+                                    rows: 4
+                                })
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(BaseControl, {
+                                    label: __('Gradient From Color', 'julianboelen')
+                                },
+                                    createElement(ColorPicker, {
+                                        color: card1GradientFrom,
+                                        onChange: (color) => setAttributes({ card1GradientFrom: color.hex }),
+                                        disableAlpha: false
+                                    })
+                                )
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%', marginTop: '20px' } },
+                                createElement(BaseControl, {
+                                    label: __('Gradient To Color', 'julianboelen')
+                                },
+                                    createElement(ColorPicker, {
+                                        color: card1GradientTo,
+                                        onChange: (color) => setAttributes({ card1GradientTo: color.hex }),
+                                        disableAlpha: false
+                                    })
+                                )
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%', marginTop: '20px' } },
+                                createElement(BaseControl, {
+                                    label: __('Text Color', 'julianboelen')
+                                },
+                                    createElement(ColorPicker, {
+                                        color: card1TextColor,
+                                        onChange: (color) => setAttributes({ card1TextColor: color.hex }),
+                                        disableAlpha: false
+                                    })
+                                )
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%', marginTop: '20px' } },
+                                createElement(BaseControl, {
+                                    label: __('Button Icon Color', 'julianboelen')
+                                },
+                                    createElement(ColorPicker, {
+                                        color: card1ButtonColor,
+                                        onChange: (color) => setAttributes({ card1ButtonColor: color.hex }),
+                                        disableAlpha: false
+                                    })
+                                )
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%', marginTop: '20px' } },
+                                createElement(Button, {
+                                    variant: showCard1LinkControl ? 'secondary' : 'primary',
+                                    onClick: () => setShowCard1LinkControl(!showCard1LinkControl)
+                                }, showCard1LinkControl ? __('Hide Link Settings', 'julianboelen') : __('Edit Link', 'julianboelen')),
+                                showCard1LinkControl && createElement('div', { style: { marginTop: '10px' } },
+                                    createElement(LinkControl, {
+                                        value: card1LinkValue,
+                                        onChange: handleCard1LinkChange
+                                    })
+                                )
+                            )
+                        )
+                    ),
+                    
+                    // Card 2 Settings
+                    createElement(PanelBody, { 
+                        title: __('Card 2 Settings (Green)', 'julianboelen'), 
+                        initialOpen: false 
+                    },
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(TextControl, {
+                                    label: __('Card 2 Title', 'julianboelen'),
+                                    value: card2Title,
+                                    onChange: (value) => setAttributes({ card2Title: value })
+                                })
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(TextareaControl, {
+                                    label: __('Card 2 Description', 'julianboelen'),
+                                    value: card2Description,
+                                    onChange: (value) => setAttributes({ card2Description: value }),
+                                    rows: 4
+                                })
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(BaseControl, {
+                                    label: __('Gradient From Color', 'julianboelen')
+                                },
+                                    createElement(ColorPicker, {
+                                        color: card2GradientFrom,
+                                        onChange: (color) => setAttributes({ card2GradientFrom: color.hex }),
+                                        disableAlpha: false
+                                    })
+                                )
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%', marginTop: '20px' } },
+                                createElement(BaseControl, {
+                                    label: __('Gradient To Color', 'julianboelen')
+                                },
+                                    createElement(ColorPicker, {
+                                        color: card2GradientTo,
+                                        onChange: (color) => setAttributes({ card2GradientTo: color.hex }),
+                                        disableAlpha: false
+                                    })
+                                )
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%', marginTop: '20px' } },
+                                createElement(BaseControl, {
+                                    label: __('Text Color', 'julianboelen')
+                                },
+                                    createElement(ColorPicker, {
+                                        color: card2TextColor,
+                                        onChange: (color) => setAttributes({ card2TextColor: color.hex }),
+                                        disableAlpha: false
+                                    })
+                                )
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%', marginTop: '20px' } },
+                                createElement(BaseControl, {
+                                    label: __('Button Icon Color', 'julianboelen')
+                                },
+                                    createElement(ColorPicker, {
+                                        color: card2ButtonColor,
+                                        onChange: (color) => setAttributes({ card2ButtonColor: color.hex }),
+                                        disableAlpha: false
+                                    })
+                                )
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%', marginTop: '20px' } },
+                                createElement(Button, {
+                                    variant: showCard2LinkControl ? 'secondary' : 'primary',
+                                    onClick: () => setShowCard2LinkControl(!showCard2LinkControl)
+                                }, showCard2LinkControl ? __('Hide Link Settings', 'julianboelen') : __('Edit Link', 'julianboelen')),
+                                showCard2LinkControl && createElement('div', { style: { marginTop: '10px' } },
+                                    createElement(LinkControl, {
+                                        value: card2LinkValue,
+                                        onChange: handleCard2LinkChange
+                                    })
+                                )
+                            )
+                        )
+                    ),
+                    
+                    // Layout Settings
+                    createElement(PanelBody, { 
+                        title: __('Layout Settings', 'julianboelen'), 
+                        initialOpen: false 
+                    },
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(SelectControl, {
+                                    label: __('Container Max Width', 'julianboelen'),
+                                    value: containerMaxWidth,
+                                    options: [
+                                        { label: __('5XL (1024px)', 'julianboelen'), value: '5xl' },
+                                        { label: __('6XL (1152px)', 'julianboelen'), value: '6xl' },
+                                        { label: __('7XL (1280px)', 'julianboelen'), value: '7xl' },
+                                        { label: __('Full Width', 'julianboelen'), value: 'full' }
+                                    ],
+                                    onChange: (value) => setAttributes({ containerMaxWidth: value })
+                                })
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(SelectControl, {
+                                    label: __('Vertical Padding', 'julianboelen'),
+                                    value: verticalPadding,
+                                    options: [
+                                        { label: __('Small', 'julianboelen'), value: 'small' },
+                                        { label: __('Default', 'julianboelen'), value: 'default' },
+                                        { label: __('Large', 'julianboelen'), value: 'large' },
+                                        { label: __('Extra Large', 'julianboelen'), value: 'xlarge' }
+                                    ],
+                                    onChange: (value) => setAttributes({ verticalPadding: value })
+                                })
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(SelectControl, {
+                                    label: __('Card Gap', 'julianboelen'),
+                                    value: cardGap,
+                                    options: [
+                                        { label: __('Small', 'julianboelen'), value: 'small' },
+                                        { label: __('Default', 'julianboelen'), value: 'default' },
+                                        { label: __('Large', 'julianboelen'), value: 'large' }
+                                    ],
+                                    onChange: (value) => setAttributes({ cardGap: value })
+                                })
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(SelectControl, {
+                                    label: __('Border Radius', 'julianboelen'),
+                                    value: borderRadius,
+                                    options: [
+                                        { label: __('Large', 'julianboelen'), value: 'lg' },
+                                        { label: __('Extra Large', 'julianboelen'), value: 'xl' },
+                                        { label: __('2XL', 'julianboelen'), value: '2xl' },
+                                        { label: __('3XL', 'julianboelen'), value: '3xl' }
+                                    ],
+                                    onChange: (value) => setAttributes({ borderRadius: value })
+                                })
+                            )
+                        )
+                    )
+                ),
+                
+                // PROFESSIONAL editor preview
+                createElement('div', { 
+                    ...useBlockProps({
+                        className: 'section-text-two-cta-editor-preview',
+                        style: {
+                            border: '2px dashed #ccc',
+                            borderRadius: '8px',
+                            padding: '20px',
+                            backgroundColor: '#f5f5f5'
+                        }
+                    })
+                },
+                    createElement('div', { 
+                        className: `w-full ${getMaxWidthClass()} mx-auto px-4 ${getPaddingClass()}`
+                    },
+                        createElement('div', { 
+                            className: `grid grid-cols-1 lg:grid-cols-2 ${getGapClass()}`
+                        },
+                            // Left Column - About Us
+                            createElement('div', { 
+                                className: `${getBorderRadiusClass()} p-8 sm:p-10 lg:p-12 shadow-sm`,
+                                style: {
+                                    backgroundColor: aboutBackgroundColor,
+                                    color: aboutTextColor
+                                }
+                            },
+                                createElement(RichText, {
+                                    tagName: 'h2',
+                                    className: 'text-3xl sm:text-4xl font-bold mb-6',
+                                    value: aboutTitle,
+                                    onChange: (value) => setAttributes({ aboutTitle: value }),
+                                    placeholder: __('Enter about title...', 'julianboelen')
+                                }),
+                                createElement('div', { className: 'space-y-6 leading-relaxed' },
+                                    createElement(RichText, {
+                                        tagName: 'p',
+                                        value: aboutParagraph1,
+                                        onChange: (value) => setAttributes({ aboutParagraph1: value }),
+                                        placeholder: __('Enter first paragraph...', 'julianboelen')
+                                    }),
+                                    createElement(RichText, {
+                                        tagName: 'p',
+                                        value: aboutParagraph2,
+                                        onChange: (value) => setAttributes({ aboutParagraph2: value }),
+                                        placeholder: __('Enter second paragraph...', 'julianboelen')
+                                    }),
+                                    createElement(RichText, {
+                                        tagName: 'p',
+                                        value: aboutParagraph3,
+                                        onChange: (value) => setAttributes({ aboutParagraph3: value }),
+                                        placeholder: __('Enter third paragraph...', 'julianboelen')
+                                    })
+                                )
+                            ),
+                            
+                            // Right Column - Two Stacked Cards
+                            createElement('div', { className: `grid grid-cols-1 ${getGapClass()}` },
+                                // Card 1 - IT Professionals
+                                createElement('div', { 
+                                    className: `${getBorderRadiusClass()} p-8 sm:p-10 lg:p-12 shadow-sm relative`,
+                                    style: {
+                                        background: `linear-gradient(to bottom right, ${card1GradientFrom}, ${card1GradientTo})`,
+                                        color: card1TextColor
+                                    }
+                                },
+                                    createElement(RichText, {
+                                        tagName: 'h2',
+                                        className: 'text-3xl sm:text-4xl font-bold mb-6',
+                                        value: card1Title,
+                                        onChange: (value) => setAttributes({ card1Title: value }),
+                                        placeholder: __('Enter card 1 title...', 'julianboelen')
+                                    }),
+                                    createElement(RichText, {
+                                        tagName: 'p',
+                                        className: 'text-base sm:text-lg leading-relaxed mb-4',
+                                        value: card1Description,
+                                        onChange: (value) => setAttributes({ card1Description: value }),
+                                        placeholder: __('Enter card 1 description...', 'julianboelen')
+                                    }),
+                                    createElement('button', {
+                                        className: 'absolute bottom-8 right-8 w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow',
+                                        style: { cursor: 'pointer' }
+                                    },
+                                        createElement('svg', {
+                                            className: 'w-6 h-6',
+                                            fill: 'none',
+                                            stroke: card1ButtonColor,
+                                            viewBox: '0 0 24 24',
+                                            style: { strokeWidth: '2.5' }
+                                        },
+                                            createElement('path', {
+                                                strokeLinecap: 'round',
+                                                strokeLinejoin: 'round',
+                                                d: 'M17 8l4 4m0 0l-4 4m4-4H3'
+                                            })
+                                        )
+                                    )
+                                ),
+                                
+                                // Card 2 - Opdrachtgevers
+                                createElement('div', { 
+                                    className: `${getBorderRadiusClass()} p-8 sm:p-10 lg:p-12 shadow-sm relative`,
+                                    style: {
+                                        background: `linear-gradient(to bottom right, ${card2GradientFrom}, ${card2GradientTo})`,
+                                        color: card2TextColor
+                                    }
+                                },
+                                    createElement(RichText, {
+                                        tagName: 'h2',
+                                        className: 'text-3xl sm:text-4xl font-bold mb-6',
+                                        value: card2Title,
+                                        onChange: (value) => setAttributes({ card2Title: value }),
+                                        placeholder: __('Enter card 2 title...', 'julianboelen')
+                                    }),
+                                    createElement(RichText, {
+                                        tagName: 'p',
+                                        className: 'text-base sm:text-lg leading-relaxed mb-4',
+                                        value: card2Description,
+                                        onChange: (value) => setAttributes({ card2Description: value }),
+                                        placeholder: __('Enter card 2 description...', 'julianboelen')
+                                    }),
+                                    createElement('button', {
+                                        className: 'absolute bottom-8 right-8 w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow',
+                                        style: { cursor: 'pointer' }
+                                    },
+                                        createElement('svg', {
+                                            className: 'w-6 h-6',
+                                            fill: 'none',
+                                            stroke: card2ButtonColor,
+                                            viewBox: '0 0 24 24',
+                                            style: { strokeWidth: '2.5' }
+                                        },
+                                            createElement('path', {
+                                                strokeLinecap: 'round',
+                                                strokeLinejoin: 'round',
+                                                d: 'M17 8l4 4m0 0l-4 4m4-4H3'
+                                            })
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            );
+        },
+
+        save: function() {
+            return null; // Server-side rendering
+        }
+    });
+})();

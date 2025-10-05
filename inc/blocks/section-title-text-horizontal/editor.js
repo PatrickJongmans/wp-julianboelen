@@ -1,3 +1,508 @@
-{
-  "content": "(function() {\n    const { registerBlockType } = wp.blocks;\n    const { RichText, InspectorControls, useBlockProps } = wp.blockEditor;\n    const { PanelBody, PanelRow, ToggleControl, SelectControl, RangeControl, BaseControl, ColorPicker } = wp.components;\n    const { Fragment, createElement } = wp.element;\n    const { __ } = wp.i18n;\n\n    registerBlockType('julianboelen/section-title-text-horizontal', {\n        apiVersion: 2,\n        title: __('Section Title Text Horizontal', 'julianboelen'),\n        icon: 'columns',\n        category: 'julianboelen-blocks',\n        description: __('A sophisticated two-column layout with heading on the left and body text on the right', 'julianboelen'),\n        supports: {\n            html: false,\n            anchor: true,\n            customClassName: true,\n            inserter: true,\n            multiple: true,\n            reusable: true,\n            spacing: {\n                padding: true,\n                margin: true\n            },\n            typography: {\n                fontSize: true,\n                lineHeight: true\n            },\n            color: {\n                background: true,\n                text: true\n            }\n        },\n        \n        attributes: {\n            heading: {\n                type: 'string',\n                default: 'Wij zijn Starapple en wij willen talent laten groeien!'\n            },\n            paragraph1: {\n                type: 'string',\n                default: 'Een brug slaan tussen aanbod van en vraag naar uiterst specifieke IT-specialisten, dat is Starapple in één zin.'\n            },\n            paragraph2: {\n                type: 'string',\n                default: 'Wij helpen je graag in jou zoektocht naar een nieuwe uitdaging zodat jij jouw carrière verder kunt ontwikkelen.'\n            },\n            backgroundColor: {\n                type: 'string',\n                default: '#ffffff'\n            },\n            headingColor: {\n                type: 'string',\n                default: '#111827'\n            },\n            textColor: {\n                type: 'string',\n                default: '#111827'\n            },\n            headingSize: {\n                type: 'string',\n                default: 'large',\n                enum: ['medium', 'large', 'xlarge']\n            },\n            textSize: {\n                type: 'string',\n                default: 'base',\n                enum: ['small', 'base', 'large']\n            },\n            columnRatio: {\n                type: 'string',\n                default: '5-7',\n                enum: ['4-8', '5-7', '6-6']\n            },\n            verticalAlignment: {\n                type: 'string',\n                default: 'start',\n                enum: ['start', 'center', 'end']\n            },\n            columnGap: {\n                type: 'string',\n                default: 'large',\n                enum: ['small', 'medium', 'large', 'xlarge']\n            },\n            paddingTop: {\n                type: 'string',\n                default: '16'\n            },\n            paddingBottom: {\n                type: 'string',\n                default: '16'\n            },\n            maxWidth: {\n                type: 'string',\n                default: '7xl',\n                enum: ['5xl', '6xl', '7xl', 'full']\n            },\n            showParagraph2: {\n                type: 'boolean',\n                default: true\n            },\n            paragraphSpacing: {\n                type: 'string',\n                default: '6'\n            }\n        },\n\n        edit: function(props) {\n            const { attributes, setAttributes } = props;\n            const { \n                heading,\n                paragraph1,\n                paragraph2,\n                backgroundColor,\n                headingColor,\n                textColor,\n                headingSize,\n                textSize,\n                columnRatio,\n                verticalAlignment,\n                columnGap,\n                paddingTop,\n                paddingBottom,\n                maxWidth,\n                showParagraph2,\n                paragraphSpacing\n            } = attributes;\n\n            // SOPHISTICATED helper functions for dynamic styling\n            const getHeadingSizeClass = () => {\n                switch(headingSize) {\n                    case 'medium':\n                        return 'text-3xl sm:text-4xl lg:text-5xl';\n                    case 'large':\n                        return 'text-4xl sm:text-5xl lg:text-6xl';\n                    case 'xlarge':\n                        return 'text-5xl sm:text-6xl lg:text-7xl';\n                    default:\n                        return 'text-4xl sm:text-5xl lg:text-6xl';\n                }\n            };\n\n            const getTextSizeClass = () => {\n                switch(textSize) {\n                    case 'small':\n                        return 'text-sm sm:text-base';\n                    case 'base':\n                        return 'text-base sm:text-lg';\n                    case 'large':\n                        return 'text-lg sm:text-xl';\n                    default:\n                        return 'text-base sm:text-lg';\n                }\n            };\n\n            const getColumnRatioClasses = () => {\n                switch(columnRatio) {\n                    case '4-8':\n                        return { left: 'lg:col-span-4', right: 'lg:col-span-8' };\n                    case '5-7':\n                        return { left: 'lg:col-span-5', right: 'lg:col-span-7' };\n                    case '6-6':\n                        return { left: 'lg:col-span-6', right: 'lg:col-span-6' };\n                    default:\n                        return { left: 'lg:col-span-5', right: 'lg:col-span-7' };\n                }\n            };\n\n            const getAlignmentClass = () => {\n                switch(verticalAlignment) {\n                    case 'start':\n                        return 'items-start';\n                    case 'center':\n                        return 'items-center';\n                    case 'end':\n                        return 'items-end';\n                    default:\n                        return 'items-start';\n                }\n            };\n\n            const getGapClass = () => {\n                switch(columnGap) {\n                    case 'small':\n                        return 'gap-4 lg:gap-6';\n                    case 'medium':\n                        return 'gap-6 lg:gap-8';\n                    case 'large':\n                        return 'gap-8 lg:gap-12';\n                    case 'xlarge':\n                        return 'gap-10 lg:gap-16';\n                    default:\n                        return 'gap-8 lg:gap-12';\n                }\n            };\n\n            const getMaxWidthClass = () => {\n                switch(maxWidth) {\n                    case '5xl':\n                        return 'max-w-5xl';\n                    case '6xl':\n                        return 'max-w-6xl';\n                    case '7xl':\n                        return 'max-w-7xl';\n                    case 'full':\n                        return 'max-w-full';\n                    default:\n                        return 'max-w-7xl';\n                }\n            };\n\n            const getPaddingStyle = () => {\n                return {\n                    paddingTop: `${paddingTop}px`,\n                    paddingBottom: `${paddingBottom}px`\n                };\n            };\n\n            const columnClasses = getColumnRatioClasses();\n            const headingSizeClass = getHeadingSizeClass();\n            const textSizeClass = getTextSizeClass();\n            const alignmentClass = getAlignmentClass();\n            const gapClass = getGapClass();\n            const maxWidthClass = getMaxWidthClass();\n\n            // ADVANCED editor preview with realistic styling\n            return createElement(Fragment, null,\n                // SOPHISTICATED InspectorControls with multiple panels\n                createElement(InspectorControls, null,\n                    createElement(PanelBody, { \n                        title: __('Content Settings', 'julianboelen'), \n                        initialOpen: true \n                    },\n                        createElement(PanelRow, null,\n                            createElement(ToggleControl, {\n                                label: __('Show Second Paragraph', 'julianboelen'),\n                                checked: showParagraph2,\n                                onChange: (value) => setAttributes({ showParagraph2: value }),\n                                help: __('Toggle visibility of the second paragraph', 'julianboelen')\n                            })\n                        ),\n                        showParagraph2 && createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%' } },\n                                createElement(RangeControl, {\n                                    label: __('Paragraph Spacing', 'julianboelen'),\n                                    value: parseInt(paragraphSpacing),\n                                    onChange: (value) => setAttributes({ paragraphSpacing: value.toString() }),\n                                    min: 2,\n                                    max: 12,\n                                    step: 1,\n                                    help: __('Space between paragraphs in pixels', 'julianboelen')\n                                })\n                            )\n                        )\n                    ),\n                    \n                    createElement(PanelBody, { \n                        title: __('Layout Settings', 'julianboelen'), \n                        initialOpen: false \n                    },\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%' } },\n                                createElement(SelectControl, {\n                                    label: __('Column Ratio', 'julianboelen'),\n                                    value: columnRatio,\n                                    options: [\n                                        { label: __('4:8 (Narrow Left)', 'julianboelen'), value: '4-8' },\n                                        { label: __('5:7 (Balanced)', 'julianboelen'), value: '5-7' },\n                                        { label: __('6:6 (Equal)', 'julianboelen'), value: '6-6' }\n                                    ],\n                                    onChange: (value) => setAttributes({ columnRatio: value }),\n                                    help: __('Adjust the width ratio between columns', 'julianboelen')\n                                })\n                            )\n                        ),\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%' } },\n                                createElement(SelectControl, {\n                                    label: __('Vertical Alignment', 'julianboelen'),\n                                    value: verticalAlignment,\n                                    options: [\n                                        { label: __('Top', 'julianboelen'), value: 'start' },\n                                        { label: __('Center', 'julianboelen'), value: 'center' },\n                                        { label: __('Bottom', 'julianboelen'), value: 'end' }\n                                    ],\n                                    onChange: (value) => setAttributes({ verticalAlignment: value }),\n                                    help: __('Vertical alignment of columns', 'julianboelen')\n                                })\n                            )\n                        ),\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%' } },\n                                createElement(SelectControl, {\n                                    label: __('Column Gap', 'julianboelen'),\n                                    value: columnGap,\n                                    options: [\n                                        { label: __('Small', 'julianboelen'), value: 'small' },\n                                        { label: __('Medium', 'julianboelen'), value: 'medium' },\n                                        { label: __('Large', 'julianboelen'), value: 'large' },\n                                        { label: __('Extra Large', 'julianboelen'), value: 'xlarge' }\n                                    ],\n                                    onChange: (value) => setAttributes({ columnGap: value }),\n                                    help: __('Space between columns', 'julianboelen')\n                                })\n                            )\n                        ),\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%' } },\n                                createElement(SelectControl, {\n                                    label: __('Maximum Width', 'julianboelen'),\n                                    value: maxWidth,\n                                    options: [\n                                        { label: __('5XL (1024px)', 'julianboelen'), value: '5xl' },\n                                        { label: __('6XL (1152px)', 'julianboelen'), value: '6xl' },\n                                        { label: __('7XL (1280px)', 'julianboelen'), value: '7xl' },\n                                        { label: __('Full Width', 'julianboelen'), value: 'full' }\n                                    ],\n                                    onChange: (value) => setAttributes({ maxWidth: value }),\n                                    help: __('Maximum content width', 'julianboelen')\n                                })\n                            )\n                        )\n                    ),\n\n                    createElement(PanelBody, { \n                        title: __('Typography Settings', 'julianboelen'), \n                        initialOpen: false \n                    },\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%' } },\n                                createElement(SelectControl, {\n                                    label: __('Heading Size', 'julianboelen'),\n                                    value: headingSize,\n                                    options: [\n                                        { label: __('Medium', 'julianboelen'), value: 'medium' },\n                                        { label: __('Large', 'julianboelen'), value: 'large' },\n                                        { label: __('Extra Large', 'julianboelen'), value: 'xlarge' }\n                                    ],\n                                    onChange: (value) => setAttributes({ headingSize: value })\n                                })\n                            )\n                        ),\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%' } },\n                                createElement(SelectControl, {\n                                    label: __('Text Size', 'julianboelen'),\n                                    value: textSize,\n                                    options: [\n                                        { label: __('Small', 'julianboelen'), value: 'small' },\n                                        { label: __('Base', 'julianboelen'), value: 'base' },\n                                        { label: __('Large', 'julianboelen'), value: 'large' }\n                                    ],\n                                    onChange: (value) => setAttributes({ textSize: value })\n                                })\n                            )\n                        )\n                    ),\n                    \n                    createElement(PanelBody, { \n                        title: __('Color Settings', 'julianboelen'), \n                        initialOpen: false \n                    },\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%' } },\n                                createElement(BaseControl, {\n                                    label: __('Background Color', 'julianboelen'),\n                                    help: __('Section background color', 'julianboelen')\n                                },\n                                    createElement(ColorPicker, {\n                                        color: backgroundColor,\n                                        onChange: (color) => setAttributes({ backgroundColor: color.hex }),\n                                        disableAlpha: false\n                                    })\n                                )\n                            )\n                        ),\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%', marginTop: '20px' } },\n                                createElement(BaseControl, {\n                                    label: __('Heading Color', 'julianboelen'),\n                                    help: __('Color for the main heading', 'julianboelen')\n                                },\n                                    createElement(ColorPicker, {\n                                        color: headingColor,\n                                        onChange: (color) => setAttributes({ headingColor: color.hex }),\n                                        disableAlpha: false\n                                    })\n                                )\n                            )\n                        ),\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%', marginTop: '20px' } },\n                                createElement(BaseControl, {\n                                    label: __('Text Color', 'julianboelen'),\n                                    help: __('Color for body text paragraphs', 'julianboelen')\n                                },\n                                    createElement(ColorPicker, {\n                                        color: textColor,\n                                        onChange: (color) => setAttributes({ textColor: color.hex }),\n                                        disableAlpha: false\n                                    })\n                                )\n                            )\n                        )\n                    ),\n\n                    createElement(PanelBody, { \n                        title: __('Spacing Settings', 'julianboelen'), \n                        initialOpen: false \n                    },\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%' } },\n                                createElement(RangeControl, {\n                                    label: __('Padding Top', 'julianboelen'),\n                                    value: parseInt(paddingTop),\n                                    onChange: (value) => setAttributes({ paddingTop: value.toString() }),\n                                    min: 0,\n                                    max: 200,\n                                    step: 4,\n                                    help: __('Top padding in pixels', 'julianboelen')\n                                })\n                            )\n                        ),\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%' } },\n                                createElement(RangeControl, {\n                                    label: __('Padding Bottom', 'julianboelen'),\n                                    value: parseInt(paddingBottom),\n                                    onChange: (value) => setAttributes({ paddingBottom: value.toString() }),\n                                    min: 0,\n                                    max: 200,\n                                    step: 4,\n                                    help: __('Bottom padding in pixels', 'julianboelen')\n                                })\n                            )\n                        )\n                    )\n                ),\n                \n                // PROFESSIONAL editor preview with realistic styling\n                createElement('section', { \n                    ...useBlockProps({\n                        className: 'section-title-text-horizontal-preview w-full px-4 sm:px-6 lg:px-8',\n                        style: { \n                            backgroundColor: backgroundColor,\n                            ...getPaddingStyle(),\n                            border: '2px dashed #e5e7eb',\n                            borderRadius: '8px'\n                        }\n                    })\n                },\n                    createElement('div', { \n                        className: `${maxWidthClass} mx-auto`\n                    },\n                        createElement('div', { \n                            className: `grid grid-cols-1 lg:grid-cols-12 ${gapClass} ${alignmentClass}`\n                        },\n                            // Left Column: Heading\n                            createElement('div', { \n                                className: `col-span-1 ${columnClasses.left}`\n                            },\n                                createElement(RichText, {\n                                    tagName: 'h1',\n                                    className: `${headingSizeClass} font-bold leading-tight`,\n                                    style: { color: headingColor },\n                                    value: heading,\n                                    onChange: (value) => setAttributes({ heading: value }),\n                                    placeholder: __('Enter your heading here...', 'julianboelen'),\n                                    allowedFormats: ['core/bold', 'core/italic']\n                                })\n                            ),\n                            \n                            // Right Column: Body Text\n                            createElement('div', { \n                                className: `col-span-1 ${columnClasses.right}`,\n                                style: { display: 'flex', flexDirection: 'column', gap: `${paragraphSpacing * 4}px` }\n                            },\n                                createElement(RichText, {\n                                    tagName: 'p',\n                                    className: `${textSizeClass} leading-relaxed`,\n                                    style: { color: textColor },\n                                    value: paragraph1,\n                                    onChange: (value) => setAttributes({ paragraph1: value }),\n                                    placeholder: __('Enter first paragraph...', 'julianboelen'),\n                                    allowedFormats: ['core/bold', 'core/italic', 'core/link']\n                                }),\n                                \n                                showParagraph2 && createElement(RichText, {\n                                    tagName: 'p',\n                                    className: `${textSizeClass} leading-relaxed`,\n                                    style: { color: textColor },\n                                    value: paragraph2,\n                                    onChange: (value) => setAttributes({ paragraph2: value }),\n                                    placeholder: __('Enter second paragraph...', 'julianboelen'),\n                                    allowedFormats: ['core/bold', 'core/italic', 'core/link']\n                                })\n                            )\n                        )\n                    )\n                )\n            );\n        },\n\n        save: function() {\n            return null; // Server-side rendering\n        }\n    });\n})();"
-}
+(function() {
+    const { registerBlockType } = wp.blocks;
+    const { RichText, InspectorControls, useBlockProps } = wp.blockEditor;
+    const { PanelBody, PanelRow, ToggleControl, SelectControl, RangeControl, BaseControl, ColorPicker } = wp.components;
+    const { Fragment, createElement } = wp.element;
+    const { __ } = wp.i18n;
+
+    registerBlockType('julianboelen/section-title-text-horizontal', {
+        apiVersion: 2,
+        title: __('Section Title Text Horizontal', 'julianboelen'),
+        icon: 'columns',
+        category: 'julianboelen-blocks',
+        description: __('A sophisticated two-column layout with heading on the left and body text on the right', 'julianboelen'),
+        supports: {
+            html: false,
+            anchor: true,
+            customClassName: true,
+            inserter: true,
+            multiple: true,
+            reusable: true,
+            spacing: {
+                padding: true,
+                margin: true
+            },
+            typography: {
+                fontSize: true,
+                lineHeight: true
+            },
+            color: {
+                background: true,
+                text: true
+            }
+        },
+        
+        attributes: {
+            heading: {
+                type: 'string',
+                default: 'Wij zijn Starapple en wij willen talent laten groeien!'
+            },
+            paragraph1: {
+                type: 'string',
+                default: 'Een brug slaan tussen aanbod van en vraag naar uiterst specifieke IT-specialisten, dat is Starapple in één zin.'
+            },
+            paragraph2: {
+                type: 'string',
+                default: 'Wij helpen je graag in jou zoektocht naar een nieuwe uitdaging zodat jij jouw carrière verder kunt ontwikkelen.'
+            },
+            backgroundColor: {
+                type: 'string',
+                default: '#ffffff'
+            },
+            headingColor: {
+                type: 'string',
+                default: '#111827'
+            },
+            textColor: {
+                type: 'string',
+                default: '#111827'
+            },
+            headingSize: {
+                type: 'string',
+                default: 'large',
+                enum: ['medium', 'large', 'xlarge']
+            },
+            textSize: {
+                type: 'string',
+                default: 'base',
+                enum: ['small', 'base', 'large']
+            },
+            columnRatio: {
+                type: 'string',
+                default: '5-7',
+                enum: ['4-8', '5-7', '6-6']
+            },
+            verticalAlignment: {
+                type: 'string',
+                default: 'start',
+                enum: ['start', 'center', 'end']
+            },
+            columnGap: {
+                type: 'string',
+                default: 'large',
+                enum: ['small', 'medium', 'large', 'xlarge']
+            },
+            paddingTop: {
+                type: 'string',
+                default: '16'
+            },
+            paddingBottom: {
+                type: 'string',
+                default: '16'
+            },
+            maxWidth: {
+                type: 'string',
+                default: '7xl',
+                enum: ['5xl', '6xl', '7xl', 'full']
+            },
+            showParagraph2: {
+                type: 'boolean',
+                default: true
+            },
+            paragraphSpacing: {
+                type: 'string',
+                default: '6'
+            }
+        },
+
+        edit: function(props) {
+            const { attributes, setAttributes } = props;
+            const { 
+                heading,
+                paragraph1,
+                paragraph2,
+                backgroundColor,
+                headingColor,
+                textColor,
+                headingSize,
+                textSize,
+                columnRatio,
+                verticalAlignment,
+                columnGap,
+                paddingTop,
+                paddingBottom,
+                maxWidth,
+                showParagraph2,
+                paragraphSpacing
+            } = attributes;
+
+            // SOPHISTICATED helper functions for dynamic styling
+            const getHeadingSizeClass = () => {
+                switch(headingSize) {
+                    case 'medium':
+                        return 'text-3xl sm:text-4xl lg:text-5xl';
+                    case 'large':
+                        return 'text-4xl sm:text-5xl lg:text-6xl';
+                    case 'xlarge':
+                        return 'text-5xl sm:text-6xl lg:text-7xl';
+                    default:
+                        return 'text-4xl sm:text-5xl lg:text-6xl';
+                }
+            };
+
+            const getTextSizeClass = () => {
+                switch(textSize) {
+                    case 'small':
+                        return 'text-sm sm:text-base';
+                    case 'base':
+                        return 'text-base sm:text-lg';
+                    case 'large':
+                        return 'text-lg sm:text-xl';
+                    default:
+                        return 'text-base sm:text-lg';
+                }
+            };
+
+            const getColumnRatioClasses = () => {
+                switch(columnRatio) {
+                    case '4-8':
+                        return { left: 'lg:col-span-4', right: 'lg:col-span-8' };
+                    case '5-7':
+                        return { left: 'lg:col-span-5', right: 'lg:col-span-7' };
+                    case '6-6':
+                        return { left: 'lg:col-span-6', right: 'lg:col-span-6' };
+                    default:
+                        return { left: 'lg:col-span-5', right: 'lg:col-span-7' };
+                }
+            };
+
+            const getAlignmentClass = () => {
+                switch(verticalAlignment) {
+                    case 'start':
+                        return 'items-start';
+                    case 'center':
+                        return 'items-center';
+                    case 'end':
+                        return 'items-end';
+                    default:
+                        return 'items-start';
+                }
+            };
+
+            const getGapClass = () => {
+                switch(columnGap) {
+                    case 'small':
+                        return 'gap-4 lg:gap-6';
+                    case 'medium':
+                        return 'gap-6 lg:gap-8';
+                    case 'large':
+                        return 'gap-8 lg:gap-12';
+                    case 'xlarge':
+                        return 'gap-10 lg:gap-16';
+                    default:
+                        return 'gap-8 lg:gap-12';
+                }
+            };
+
+            const getMaxWidthClass = () => {
+                switch(maxWidth) {
+                    case '5xl':
+                        return 'max-w-5xl';
+                    case '6xl':
+                        return 'max-w-6xl';
+                    case '7xl':
+                        return 'max-w-7xl';
+                    case 'full':
+                        return 'max-w-full';
+                    default:
+                        return 'max-w-7xl';
+                }
+            };
+
+            const getPaddingStyle = () => {
+                return {
+                    paddingTop: `${paddingTop}px`,
+                    paddingBottom: `${paddingBottom}px`
+                };
+            };
+
+            const columnClasses = getColumnRatioClasses();
+            const headingSizeClass = getHeadingSizeClass();
+            const textSizeClass = getTextSizeClass();
+            const alignmentClass = getAlignmentClass();
+            const gapClass = getGapClass();
+            const maxWidthClass = getMaxWidthClass();
+
+            // ADVANCED editor preview with realistic styling
+            return createElement(Fragment, null,
+                // SOPHISTICATED InspectorControls with multiple panels
+                createElement(InspectorControls, null,
+                    createElement(PanelBody, { 
+                        title: __('Content Settings', 'julianboelen'), 
+                        initialOpen: true 
+                    },
+                        createElement(PanelRow, null,
+                            createElement(ToggleControl, {
+                                label: __('Show Second Paragraph', 'julianboelen'),
+                                checked: showParagraph2,
+                                onChange: (value) => setAttributes({ showParagraph2: value }),
+                                help: __('Toggle visibility of the second paragraph', 'julianboelen')
+                            })
+                        ),
+                        showParagraph2 && createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(RangeControl, {
+                                    label: __('Paragraph Spacing', 'julianboelen'),
+                                    value: parseInt(paragraphSpacing),
+                                    onChange: (value) => setAttributes({ paragraphSpacing: value.toString() }),
+                                    min: 2,
+                                    max: 12,
+                                    step: 1,
+                                    help: __('Space between paragraphs in pixels', 'julianboelen')
+                                })
+                            )
+                        )
+                    ),
+                    
+                    createElement(PanelBody, { 
+                        title: __('Layout Settings', 'julianboelen'), 
+                        initialOpen: false 
+                    },
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(SelectControl, {
+                                    label: __('Column Ratio', 'julianboelen'),
+                                    value: columnRatio,
+                                    options: [
+                                        { label: __('4:8 (Narrow Left)', 'julianboelen'), value: '4-8' },
+                                        { label: __('5:7 (Balanced)', 'julianboelen'), value: '5-7' },
+                                        { label: __('6:6 (Equal)', 'julianboelen'), value: '6-6' }
+                                    ],
+                                    onChange: (value) => setAttributes({ columnRatio: value }),
+                                    help: __('Adjust the width ratio between columns', 'julianboelen')
+                                })
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(SelectControl, {
+                                    label: __('Vertical Alignment', 'julianboelen'),
+                                    value: verticalAlignment,
+                                    options: [
+                                        { label: __('Top', 'julianboelen'), value: 'start' },
+                                        { label: __('Center', 'julianboelen'), value: 'center' },
+                                        { label: __('Bottom', 'julianboelen'), value: 'end' }
+                                    ],
+                                    onChange: (value) => setAttributes({ verticalAlignment: value }),
+                                    help: __('Vertical alignment of columns', 'julianboelen')
+                                })
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(SelectControl, {
+                                    label: __('Column Gap', 'julianboelen'),
+                                    value: columnGap,
+                                    options: [
+                                        { label: __('Small', 'julianboelen'), value: 'small' },
+                                        { label: __('Medium', 'julianboelen'), value: 'medium' },
+                                        { label: __('Large', 'julianboelen'), value: 'large' },
+                                        { label: __('Extra Large', 'julianboelen'), value: 'xlarge' }
+                                    ],
+                                    onChange: (value) => setAttributes({ columnGap: value }),
+                                    help: __('Space between columns', 'julianboelen')
+                                })
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(SelectControl, {
+                                    label: __('Maximum Width', 'julianboelen'),
+                                    value: maxWidth,
+                                    options: [
+                                        { label: __('5XL (1024px)', 'julianboelen'), value: '5xl' },
+                                        { label: __('6XL (1152px)', 'julianboelen'), value: '6xl' },
+                                        { label: __('7XL (1280px)', 'julianboelen'), value: '7xl' },
+                                        { label: __('Full Width', 'julianboelen'), value: 'full' }
+                                    ],
+                                    onChange: (value) => setAttributes({ maxWidth: value }),
+                                    help: __('Maximum content width', 'julianboelen')
+                                })
+                            )
+                        )
+                    ),
+
+                    createElement(PanelBody, { 
+                        title: __('Typography Settings', 'julianboelen'), 
+                        initialOpen: false 
+                    },
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(SelectControl, {
+                                    label: __('Heading Size', 'julianboelen'),
+                                    value: headingSize,
+                                    options: [
+                                        { label: __('Medium', 'julianboelen'), value: 'medium' },
+                                        { label: __('Large', 'julianboelen'), value: 'large' },
+                                        { label: __('Extra Large', 'julianboelen'), value: 'xlarge' }
+                                    ],
+                                    onChange: (value) => setAttributes({ headingSize: value })
+                                })
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(SelectControl, {
+                                    label: __('Text Size', 'julianboelen'),
+                                    value: textSize,
+                                    options: [
+                                        { label: __('Small', 'julianboelen'), value: 'small' },
+                                        { label: __('Base', 'julianboelen'), value: 'base' },
+                                        { label: __('Large', 'julianboelen'), value: 'large' }
+                                    ],
+                                    onChange: (value) => setAttributes({ textSize: value })
+                                })
+                            )
+                        )
+                    ),
+                    
+                    createElement(PanelBody, { 
+                        title: __('Color Settings', 'julianboelen'), 
+                        initialOpen: false 
+                    },
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(BaseControl, {
+                                    label: __('Background Color', 'julianboelen'),
+                                    help: __('Section background color', 'julianboelen')
+                                },
+                                    createElement(ColorPicker, {
+                                        color: backgroundColor,
+                                        onChange: (color) => setAttributes({ backgroundColor: color.hex }),
+                                        disableAlpha: false
+                                    })
+                                )
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%', marginTop: '20px' } },
+                                createElement(BaseControl, {
+                                    label: __('Heading Color', 'julianboelen'),
+                                    help: __('Color for the main heading', 'julianboelen')
+                                },
+                                    createElement(ColorPicker, {
+                                        color: headingColor,
+                                        onChange: (color) => setAttributes({ headingColor: color.hex }),
+                                        disableAlpha: false
+                                    })
+                                )
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%', marginTop: '20px' } },
+                                createElement(BaseControl, {
+                                    label: __('Text Color', 'julianboelen'),
+                                    help: __('Color for body text paragraphs', 'julianboelen')
+                                },
+                                    createElement(ColorPicker, {
+                                        color: textColor,
+                                        onChange: (color) => setAttributes({ textColor: color.hex }),
+                                        disableAlpha: false
+                                    })
+                                )
+                            )
+                        )
+                    ),
+
+                    createElement(PanelBody, { 
+                        title: __('Spacing Settings', 'julianboelen'), 
+                        initialOpen: false 
+                    },
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(RangeControl, {
+                                    label: __('Padding Top', 'julianboelen'),
+                                    value: parseInt(paddingTop),
+                                    onChange: (value) => setAttributes({ paddingTop: value.toString() }),
+                                    min: 0,
+                                    max: 200,
+                                    step: 4,
+                                    help: __('Top padding in pixels', 'julianboelen')
+                                })
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(RangeControl, {
+                                    label: __('Padding Bottom', 'julianboelen'),
+                                    value: parseInt(paddingBottom),
+                                    onChange: (value) => setAttributes({ paddingBottom: value.toString() }),
+                                    min: 0,
+                                    max: 200,
+                                    step: 4,
+                                    help: __('Bottom padding in pixels', 'julianboelen')
+                                })
+                            )
+                        )
+                    )
+                ),
+                
+                // PROFESSIONAL editor preview with realistic styling
+                createElement('section', { 
+                    ...useBlockProps({
+                        className: 'section-title-text-horizontal-preview w-full px-4 sm:px-6 lg:px-8',
+                        style: { 
+                            backgroundColor: backgroundColor,
+                            ...getPaddingStyle(),
+                            border: '2px dashed #e5e7eb',
+                            borderRadius: '8px'
+                        }
+                    })
+                },
+                    createElement('div', { 
+                        className: `${maxWidthClass} mx-auto`
+                    },
+                        createElement('div', { 
+                            className: `grid grid-cols-1 lg:grid-cols-12 ${gapClass} ${alignmentClass}`
+                        },
+                            // Left Column: Heading
+                            createElement('div', { 
+                                className: `col-span-1 ${columnClasses.left}`
+                            },
+                                createElement(RichText, {
+                                    tagName: 'h1',
+                                    className: `${headingSizeClass} font-bold leading-tight`,
+                                    style: { color: headingColor },
+                                    value: heading,
+                                    onChange: (value) => setAttributes({ heading: value }),
+                                    placeholder: __('Enter your heading here...', 'julianboelen'),
+                                    allowedFormats: ['core/bold', 'core/italic']
+                                })
+                            ),
+                            
+                            // Right Column: Body Text
+                            createElement('div', { 
+                                className: `col-span-1 ${columnClasses.right}`,
+                                style: { display: 'flex', flexDirection: 'column', gap: `${paragraphSpacing * 4}px` }
+                            },
+                                createElement(RichText, {
+                                    tagName: 'p',
+                                    className: `${textSizeClass} leading-relaxed`,
+                                    style: { color: textColor },
+                                    value: paragraph1,
+                                    onChange: (value) => setAttributes({ paragraph1: value }),
+                                    placeholder: __('Enter first paragraph...', 'julianboelen'),
+                                    allowedFormats: ['core/bold', 'core/italic', 'core/link']
+                                }),
+                                
+                                showParagraph2 && createElement(RichText, {
+                                    tagName: 'p',
+                                    className: `${textSizeClass} leading-relaxed`,
+                                    style: { color: textColor },
+                                    value: paragraph2,
+                                    onChange: (value) => setAttributes({ paragraph2: value }),
+                                    placeholder: __('Enter second paragraph...', 'julianboelen'),
+                                    allowedFormats: ['core/bold', 'core/italic', 'core/link']
+                                })
+                            )
+                        )
+                    )
+                )
+            );
+        },
+
+        save: function() {
+            return null; // Server-side rendering
+        }
+    });
+})();

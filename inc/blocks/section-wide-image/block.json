@@ -1,3 +1,124 @@
 {
-  "content": "{\n  \"$schema\": \"https://schemas.wp.org/trunk/block.json\",\n  \"apiVersion\": 2,\n  \"name\": \"julianboelen/section-wide-image\",\n  \"version\": \"1.0.0\",\n  \"title\": \"Section Wide Image\",\n  \"category\": \"julianboelen-blocks\",\n  \"icon\": \"format-image\",\n  \"description\": \"Full-width image section with animation support and advanced image controls\",\n  \"keywords\": [\"image\", \"wide\", \"full-width\", \"hero\", \"section\", \"animation\"],\n  \"supports\": {\n    \"html\": false,\n    \"anchor\": true,\n    \"customClassName\": true,\n    \"inserter\": true,\n    \"multiple\": true,\n    \"reusable\": true,\n    \"spacing\": {\n      \"padding\": true,\n      \"margin\": true\n    },\n    \"align\": [\"wide\", \"full\"]\n  },\n  \"attributes\": {\n    \"imageUrl\": {\n      \"type\": \"string\",\n      \"default\": \"https://images.unsplash.com/photo-1575936123452-b67c3203c357?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4MTAzMDV8MHwxfHNlYXJjaHwxfHxpbWFnZXxlbnwwfDB8fHwxNzU5NjYzODYwfDA&ixlib=rb-4.1.0&q=80&w=1920\"\n    },\n    \"imageId\": {\n      \"type\": \"number\",\n      \"default\": 0\n    },\n    \"imageAlt\": {\n      \"type\": \"string\",\n      \"default\": \"Collaborative workspace with laptops, tablets, notebooks and coffee on wooden table\"\n    },\n    \"imageWidth\": {\n      \"type\": \"number\",\n      \"default\": 1920\n    },\n    \"imageHeight\": {\n      \"type\": \"number\",\n      \"default\": 800\n    },\n    \"objectFit\": {\n      \"type\": \"string\",\n      \"default\": \"cover\",\n      \"enum\": [\"cover\", \"contain\", \"fill\", \"none\", \"scale-down\"]\n    },\n    \"borderRadius\": {\n      \"type\": \"string\",\n      \"default\": \"2xl\",\n      \"enum\": [\"none\", \"sm\", \"md\", \"lg\", \"xl\", \"2xl\", \"3xl\", \"full\"]\n    },\n    \"enableAnimation\": {\n      \"type\": \"boolean\",\n      \"default\": true\n    },\n    \"animationType\": {\n      \"type\": \"string\",\n      \"default\": \"fade-up\",\n      \"enum\": [\"fade\", \"fade-up\", \"fade-down\", \"fade-left\", \"fade-right\", \"zoom-in\", \"zoom-out\", \"slide-up\", \"slide-down\", \"flip-left\", \"flip-right\"]\n    },\n    \"animationDuration\": {\n      \"type\": \"number\",\n      \"default\": 1200\n    },\n    \"animationDelay\": {\n      \"type\": \"number\",\n      \"default\": 0\n    },\n    \"animationEasing\": {\n      \"type\": \"string\",\n      \"default\": \"ease-in-out\",\n      \"enum\": [\"linear\", \"ease\", \"ease-in\", \"ease-out\", \"ease-in-out\", \"ease-in-back\", \"ease-out-back\", \"ease-in-out-back\"]\n    },\n    \"aspectRatio\": {\n      \"type\": \"string\",\n      \"default\": \"auto\",\n      \"enum\": [\"auto\", \"16/9\", \"4/3\", \"3/2\", \"21/9\", \"1/1\"]\n    },\n    \"maxHeight\": {\n      \"type\": \"string\",\n      \"default\": \"none\"\n    },\n    \"overlayEnabled\": {\n      \"type\": \"boolean\",\n      \"default\": false\n    },\n    \"overlayColor\": {\n      \"type\": \"string\",\n      \"default\": \"rgba(0, 0, 0, 0.3)\"\n    },\n    \"overlayOpacity\": {\n      \"type\": \"number\",\n      \"default\": 30\n    },\n    \"linkUrl\": {\n      \"type\": \"string\",\n      \"default\": \"\"\n    },\n    \"linkTarget\": {\n      \"type\": \"string\",\n      \"default\": \"\"\n    },\n    \"linkRel\": {\n      \"type\": \"string\",\n      \"default\": \"\"\n    },\n    \"enableLazyLoad\": {\n      \"type\": \"boolean\",\n      \"default\": true\n    },\n    \"containerPadding\": {\n      \"type\": \"string\",\n      \"default\": \"none\",\n      \"enum\": [\"none\", \"sm\", \"md\", \"lg\", \"xl\"]\n    }\n  },\n  \"textdomain\": \"julianboelen\",\n  \"editorScript\": \"julianboelen-section-wide-image-editor\",\n  \"style\": \"file:./style.css\",\n  \"render\": \"file:./render.php\"\n}"
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 2,
+  "name": "julianboelen/section-wide-image",
+  "version": "1.0.0",
+  "title": "Section Wide Image",
+  "category": "julianboelen-blocks",
+  "icon": "format-image",
+  "description": "Full-width image section with animation support and advanced image controls",
+  "keywords": ["image", "wide", "full-width", "hero", "section", "animation"],
+  "supports": {
+    "html": false,
+    "anchor": true,
+    "customClassName": true,
+    "inserter": true,
+    "multiple": true,
+    "reusable": true,
+    "spacing": {
+      "padding": true,
+      "margin": true
+    },
+    "align": ["wide", "full"]
+  },
+  "attributes": {
+    "imageUrl": {
+      "type": "string",
+      "default": "https://images.unsplash.com/photo-1575936123452-b67c3203c357?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4MTAzMDV8MHwxfHNlYXJjaHwxfHxpbWFnZXxlbnwwfDB8fHwxNzU5NjYzODYwfDA&ixlib=rb-4.1.0&q=80&w=1920"
+    },
+    "imageId": {
+      "type": "number",
+      "default": 0
+    },
+    "imageAlt": {
+      "type": "string",
+      "default": "Collaborative workspace with laptops, tablets, notebooks and coffee on wooden table"
+    },
+    "imageWidth": {
+      "type": "number",
+      "default": 1920
+    },
+    "imageHeight": {
+      "type": "number",
+      "default": 800
+    },
+    "objectFit": {
+      "type": "string",
+      "default": "cover",
+      "enum": ["cover", "contain", "fill", "none", "scale-down"]
+    },
+    "borderRadius": {
+      "type": "string",
+      "default": "2xl",
+      "enum": ["none", "sm", "md", "lg", "xl", "2xl", "3xl", "full"]
+    },
+    "enableAnimation": {
+      "type": "boolean",
+      "default": true
+    },
+    "animationType": {
+      "type": "string",
+      "default": "fade-up",
+      "enum": ["fade", "fade-up", "fade-down", "fade-left", "fade-right", "zoom-in", "zoom-out", "slide-up", "slide-down", "flip-left", "flip-right"]
+    },
+    "animationDuration": {
+      "type": "number",
+      "default": 1200
+    },
+    "animationDelay": {
+      "type": "number",
+      "default": 0
+    },
+    "animationEasing": {
+      "type": "string",
+      "default": "ease-in-out",
+      "enum": ["linear", "ease", "ease-in", "ease-out", "ease-in-out", "ease-in-back", "ease-out-back", "ease-in-out-back"]
+    },
+    "aspectRatio": {
+      "type": "string",
+      "default": "auto",
+      "enum": ["auto", "16/9", "4/3", "3/2", "21/9", "1/1"]
+    },
+    "maxHeight": {
+      "type": "string",
+      "default": "none"
+    },
+    "overlayEnabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "overlayColor": {
+      "type": "string",
+      "default": "rgba(0, 0, 0, 0.3)"
+    },
+    "overlayOpacity": {
+      "type": "number",
+      "default": 30
+    },
+    "linkUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "linkTarget": {
+      "type": "string",
+      "default": ""
+    },
+    "linkRel": {
+      "type": "string",
+      "default": ""
+    },
+    "enableLazyLoad": {
+      "type": "boolean",
+      "default": true
+    },
+    "containerPadding": {
+      "type": "string",
+      "default": "none",
+      "enum": ["none", "sm", "md", "lg", "xl"]
+    }
+  },
+  "textdomain": "julianboelen",
+  "editorScript": "julianboelen-section-wide-image-editor",
+  "style": "file:./style.css",
+  "render": "file:./render.php"
 }

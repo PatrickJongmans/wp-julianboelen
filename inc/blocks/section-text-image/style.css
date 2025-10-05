@@ -1,3 +1,362 @@
-{
-  "content": "/**\n * Section Text Image Block Styles\n * Professional, production-ready CSS with responsive design\n */\n\n/* Block Container */\n.section-text-image-block {\n    position: relative;\n    width: 100%;\n    overflow: hidden;\n}\n\n/* Content Wrapper */\n.section-text-image-block .max-w-7xl {\n    max-width: 80rem;\n    margin-left: auto;\n    margin-right: auto;\n}\n\n/* Grid Layout */\n.section-text-image-block .grid {\n    display: grid;\n}\n\n.section-text-image-block .grid-cols-1 {\n    grid-template-columns: repeat(1, minmax(0, 1fr));\n}\n\n@media (min-width: 1024px) {\n    .section-text-image-block .lg\\:grid-cols-2 {\n        grid-template-columns: repeat(2, minmax(0, 1fr));\n    }\n}\n\n/* Gap Utilities */\n.section-text-image-block .gap-8 {\n    gap: 2rem;\n}\n\n.section-text-image-block .gap-10 {\n    gap: 2.5rem;\n}\n\n.section-text-image-block .gap-12 {\n    gap: 3rem;\n}\n\n.section-text-image-block .gap-16 {\n    gap: 4rem;\n}\n\n@media (min-width: 1024px) {\n    .section-text-image-block .lg\\:gap-8 {\n        gap: 2rem;\n    }\n    \n    .section-text-image-block .lg\\:gap-10 {\n        gap: 2.5rem;\n    }\n    \n    .section-text-image-block .lg\\:gap-12 {\n        gap: 3rem;\n    }\n    \n    .section-text-image-block .lg\\:gap-16 {\n        gap: 4rem;\n    }\n}\n\n/* Text Column */\n.section-text-image-block .flex-col {\n    display: flex;\n    flex-direction: column;\n}\n\n.section-text-image-block .justify-center {\n    justify-content: center;\n}\n\n.section-text-image-block .space-y-6 > * + * {\n    margin-top: 1.5rem;\n}\n\n/* Typography */\n.section-text-image-block p {\n    margin: 0;\n    line-height: 1.625;\n}\n\n.section-text-image-block h1 {\n    margin: 0;\n    font-weight: 700;\n    line-height: 1.2;\n}\n\n/* Small Heading */\n.section-text-image-block .text-base {\n    font-size: 1rem;\n    line-height: 1.5rem;\n}\n\n@media (min-width: 640px) {\n    .section-text-image-block .sm\\:text-lg {\n        font-size: 1.125rem;\n        line-height: 1.75rem;\n    }\n}\n\n/* Main Heading */\n.section-text-image-block .text-3xl {\n    font-size: 1.875rem;\n    line-height: 2.25rem;\n}\n\n@media (min-width: 640px) {\n    .section-text-image-block .sm\\:text-4xl {\n        font-size: 2.25rem;\n        line-height: 2.5rem;\n    }\n}\n\n@media (min-width: 1024px) {\n    .section-text-image-block .lg\\:text-5xl {\n        font-size: 3rem;\n        line-height: 1;\n    }\n}\n\n/* Button Styles */\n.section-text-image-block .pt-2 {\n    padding-top: 0.5rem;\n}\n\n.section-text-image-block a.inline-block {\n    display: inline-block;\n    text-decoration: none;\n    cursor: pointer;\n    user-select: none;\n}\n\n.section-text-image-block .px-10 {\n    padding-left: 2.5rem;\n    padding-right: 2.5rem;\n}\n\n.section-text-image-block .py-4 {\n    padding-top: 1rem;\n    padding-bottom: 1rem;\n}\n\n.section-text-image-block .rounded-full {\n    border-radius: 9999px;\n}\n\n.section-text-image-block .font-semibold {\n    font-weight: 600;\n}\n\n.section-text-image-block .transition-colors {\n    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;\n    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);\n    transition-duration: 300ms;\n}\n\n.section-text-image-block .duration-300 {\n    transition-duration: 300ms;\n}\n\n.section-text-image-block .shadow-md {\n    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);\n}\n\n.section-text-image-block a:hover.shadow-lg {\n    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);\n}\n\n.section-text-image-block a:focus {\n    outline: 2px solid transparent;\n    outline-offset: 2px;\n}\n\n.section-text-image-block a:focus-visible {\n    outline: 2px solid currentColor;\n    outline-offset: 2px;\n}\n\n/* Image Column */\n.section-text-image-block .w-full {\n    width: 100%;\n}\n\n.section-text-image-block .max-w-2xl {\n    max-width: 42rem;\n}\n\n.section-text-image-block .h-auto {\n    height: auto;\n}\n\n.section-text-image-block .object-cover {\n    object-fit: cover;\n}\n\n/* Image Roundness */\n.section-text-image-block .rounded-none {\n    border-radius: 0;\n}\n\n.section-text-image-block .rounded-lg {\n    border-radius: 0.5rem;\n}\n\n.section-text-image-block .rounded-xl {\n    border-radius: 0.75rem;\n}\n\n.section-text-image-block .rounded-2xl {\n    border-radius: 1rem;\n}\n\n.section-text-image-block .rounded-3xl {\n    border-radius: 1.5rem;\n}\n\n.section-text-image-block .rounded-full {\n    border-radius: 9999px;\n}\n\n.section-text-image-block .shadow-lg {\n    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);\n}\n\n/* Responsive Image */\n.section-text-image-block img {\n    max-width: 100%;\n    height: auto;\n    display: block;\n}\n\n/* Order Classes for Image Position */\n.section-text-image-block .order-1 {\n    order: 1;\n}\n\n.section-text-image-block .order-2 {\n    order: 2;\n}\n\n@media (min-width: 1024px) {\n    .section-text-image-block .lg\\:order-1 {\n        order: 1;\n    }\n    \n    .section-text-image-block .lg\\:order-2 {\n        order: 2;\n    }\n    \n    .section-text-image-block .lg\\:justify-end {\n        justify-content: flex-end;\n    }\n}\n\n/* Padding Utilities */\n.section-text-image-block.py-8 {\n    padding-top: 2rem;\n    padding-bottom: 2rem;\n}\n\n.section-text-image-block.py-12 {\n    padding-top: 3rem;\n    padding-bottom: 3rem;\n}\n\n.section-text-image-block.py-16 {\n    padding-top: 4rem;\n    padding-bottom: 4rem;\n}\n\n.section-text-image-block.py-20 {\n    padding-top: 5rem;\n    padding-bottom: 5rem;\n}\n\n.section-text-image-block.px-4 {\n    padding-left: 1rem;\n    padding-right: 1rem;\n}\n\n@media (min-width: 640px) {\n    .section-text-image-block.sm\\:px-6 {\n        padding-left: 1.5rem;\n        padding-right: 1.5rem;\n    }\n}\n\n@media (min-width: 1024px) {\n    .section-text-image-block.lg\\:px-8 {\n        padding-left: 2rem;\n        padding-right: 2rem;\n    }\n}\n\n/* Alignment Utilities */\n.section-text-image-block .items-center {\n    align-items: center;\n}\n\n/* Editor Preview Styles */\n.section-text-image-block-preview {\n    min-height: 400px;\n}\n\n.section-text-image-block-preview .components-placeholder {\n    min-height: 300px;\n}\n\n/* Accessibility Improvements */\n.section-text-image-block a:focus-visible {\n    outline: 2px solid currentColor;\n    outline-offset: 4px;\n}\n\n/* Animation for Hover Effects */\n@media (prefers-reduced-motion: no-preference) {\n    .section-text-image-block a {\n        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);\n    }\n    \n    .section-text-image-block a:hover {\n        transform: translateY(-2px);\n    }\n}\n\n/* Print Styles */\n@media print {\n    .section-text-image-block {\n        page-break-inside: avoid;\n    }\n    \n    .section-text-image-block .grid {\n        display: block;\n    }\n    \n    .section-text-image-block img {\n        max-width: 100%;\n        page-break-inside: avoid;\n    }\n}\n\n/* Dark Mode Support (if theme supports it) */\n@media (prefers-color-scheme: dark) {\n    .section-text-image-block {\n        /* Add dark mode styles if needed */\n    }\n}\n\n/* High Contrast Mode */\n@media (prefers-contrast: high) {\n    .section-text-image-block a {\n        outline: 2px solid currentColor;\n    }\n}"
+/**
+ * Section Text Image Block Styles
+ * Professional, production-ready CSS with responsive design
+ */
+
+/* Block Container */
+.section-text-image-block {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+
+/* Content Wrapper */
+.section-text-image-block .max-w-7xl {
+    max-width: 80rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Grid Layout */
+.section-text-image-block .grid {
+    display: grid;
+}
+
+.section-text-image-block .grid-cols-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+@media (min-width: 1024px) {
+    .section-text-image-block .lg\:grid-cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* Gap Utilities */
+.section-text-image-block .gap-8 {
+    gap: 2rem;
+}
+
+.section-text-image-block .gap-10 {
+    gap: 2.5rem;
+}
+
+.section-text-image-block .gap-12 {
+    gap: 3rem;
+}
+
+.section-text-image-block .gap-16 {
+    gap: 4rem;
+}
+
+@media (min-width: 1024px) {
+    .section-text-image-block .lg\:gap-8 {
+        gap: 2rem;
+    }
+    
+    .section-text-image-block .lg\:gap-10 {
+        gap: 2.5rem;
+    }
+    
+    .section-text-image-block .lg\:gap-12 {
+        gap: 3rem;
+    }
+    
+    .section-text-image-block .lg\:gap-16 {
+        gap: 4rem;
+    }
+}
+
+/* Text Column */
+.section-text-image-block .flex-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.section-text-image-block .justify-center {
+    justify-content: center;
+}
+
+.section-text-image-block .space-y-6 > * + * {
+    margin-top: 1.5rem;
+}
+
+/* Typography */
+.section-text-image-block p {
+    margin: 0;
+    line-height: 1.625;
+}
+
+.section-text-image-block h1 {
+    margin: 0;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+/* Small Heading */
+.section-text-image-block .text-base {
+    font-size: 1rem;
+    line-height: 1.5rem;
+}
+
+@media (min-width: 640px) {
+    .section-text-image-block .sm\:text-lg {
+        font-size: 1.125rem;
+        line-height: 1.75rem;
+    }
+}
+
+/* Main Heading */
+.section-text-image-block .text-3xl {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+}
+
+@media (min-width: 640px) {
+    .section-text-image-block .sm\:text-4xl {
+        font-size: 2.25rem;
+        line-height: 2.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .section-text-image-block .lg\:text-5xl {
+        font-size: 3rem;
+        line-height: 1;
+    }
+}
+
+/* Button Styles */
+.section-text-image-block .pt-2 {
+    padding-top: 0.5rem;
+}
+
+.section-text-image-block a.inline-block {
+    display: inline-block;
+    text-decoration: none;
+    cursor: pointer;
+    user-select: none;
+}
+
+.section-text-image-block .px-10 {
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+}
+
+.section-text-image-block .py-4 {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.section-text-image-block .rounded-full {
+    border-radius: 9999px;
+}
+
+.section-text-image-block .font-semibold {
+    font-weight: 600;
+}
+
+.section-text-image-block .transition-colors {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+}
+
+.section-text-image-block .duration-300 {
+    transition-duration: 300ms;
+}
+
+.section-text-image-block .shadow-md {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.section-text-image-block a:hover.shadow-lg {
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+.section-text-image-block a:focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+}
+
+.section-text-image-block a:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
+/* Image Column */
+.section-text-image-block .w-full {
+    width: 100%;
+}
+
+.section-text-image-block .max-w-2xl {
+    max-width: 42rem;
+}
+
+.section-text-image-block .h-auto {
+    height: auto;
+}
+
+.section-text-image-block .object-cover {
+    object-fit: cover;
+}
+
+/* Image Roundness */
+.section-text-image-block .rounded-none {
+    border-radius: 0;
+}
+
+.section-text-image-block .rounded-lg {
+    border-radius: 0.5rem;
+}
+
+.section-text-image-block .rounded-xl {
+    border-radius: 0.75rem;
+}
+
+.section-text-image-block .rounded-2xl {
+    border-radius: 1rem;
+}
+
+.section-text-image-block .rounded-3xl {
+    border-radius: 1.5rem;
+}
+
+.section-text-image-block .rounded-full {
+    border-radius: 9999px;
+}
+
+.section-text-image-block .shadow-lg {
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* Responsive Image */
+.section-text-image-block img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Order Classes for Image Position */
+.section-text-image-block .order-1 {
+    order: 1;
+}
+
+.section-text-image-block .order-2 {
+    order: 2;
+}
+
+@media (min-width: 1024px) {
+    .section-text-image-block .lg\:order-1 {
+        order: 1;
+    }
+    
+    .section-text-image-block .lg\:order-2 {
+        order: 2;
+    }
+    
+    .section-text-image-block .lg\:justify-end {
+        justify-content: flex-end;
+    }
+}
+
+/* Padding Utilities */
+.section-text-image-block.py-8 {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+.section-text-image-block.py-12 {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+}
+
+.section-text-image-block.py-16 {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+}
+
+.section-text-image-block.py-20 {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+}
+
+.section-text-image-block.px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+    .section-text-image-block.sm\:px-6 {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .section-text-image-block.lg\:px-8 {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+}
+
+/* Alignment Utilities */
+.section-text-image-block .items-center {
+    align-items: center;
+}
+
+/* Editor Preview Styles */
+.section-text-image-block-preview {
+    min-height: 400px;
+}
+
+.section-text-image-block-preview .components-placeholder {
+    min-height: 300px;
+}
+
+/* Accessibility Improvements */
+.section-text-image-block a:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 4px;
+}
+
+/* Animation for Hover Effects */
+@media (prefers-reduced-motion: no-preference) {
+    .section-text-image-block a {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .section-text-image-block a:hover {
+        transform: translateY(-2px);
+    }
+}
+
+/* Print Styles */
+@media print {
+    .section-text-image-block {
+        page-break-inside: avoid;
+    }
+    
+    .section-text-image-block .grid {
+        display: block;
+    }
+    
+    .section-text-image-block img {
+        max-width: 100%;
+        page-break-inside: avoid;
+    }
+}
+
+/* Dark Mode Support (if theme supports it) */
+@media (prefers-color-scheme: dark) {
+    .section-text-image-block {
+        /* Add dark mode styles if needed */
+    }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .section-text-image-block a {
+        outline: 2px solid currentColor;
+    }
 }

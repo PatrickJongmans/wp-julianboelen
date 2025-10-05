@@ -1,11 +1,10 @@
 <?php
 /**
- * Block Loader: section-title-text-horizontal
+ * Section Title Text Horizontal Block Loader
  * 
- * This file registers the section-title-text-horizontal block with WordPress.
- * It is automatically loaded by the main blocks.php file.
+ * Handles block registration and asset enqueuing
  * 
- * @package Julianboelen_Theme
+ * @package JulianBoelen
  * @since 1.0.0
  */
 
@@ -15,102 +14,91 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Register the section-title-text-horizontal block
+ * Register the Section Title Text Horizontal block
  * 
- * This function registers the block type and handles all necessary
- * dependencies including scripts, styles, and server-side rendering.
- * 
- * @since 1.0.0
  * @return void
  */
-function tf_register_section_title_text_horizontal_block() {
-    // Check if block registration function exists
-    if (!function_exists('register_block_type')) {
+function julianboelen_register_section_title_text_horizontal_block() {
+    // Define block directory path
+    $block_dir = get_template_directory() . '/inc/blocks/section-title-text-horizontal';
+    
+    // Check if block.json exists
+    if (!file_exists($block_dir . '/block.json')) {
         return;
     }
-
-    // Avoid duplicate registration
-    if (class_exists('WP_Block_Type_Registry')) {
-        $registry = WP_Block_Type_Registry::get_instance();
-        if (method_exists($registry, 'is_registered') && $registry->is_registered('julianboelen/section-title-text-horizontal')) {
-            return;
-        }
+    
+    // Register the block editor script
+    $editor_asset_file = $block_dir . '/editor.js';
+    if (file_exists($editor_asset_file)) {
+        wp_register_script(
+            'julianboelen-section-title-text-horizontal-editor',
+            get_template_directory_uri() . '/inc/blocks/section-title-text-horizontal/editor.js',
+            array(
+                'wp-blocks',
+                'wp-element',
+                'wp-block-editor',
+                'wp-components',
+                'wp-i18n'
+            ),
+            filemtime($editor_asset_file),
+            true
+        );
     }
-
-    // Register editor script with explicit dependencies
-    wp_register_script(
-        'julianboelen-section-title-text-horizontal-editor',
-        get_template_directory_uri() . '/inc/blocks/section-title-text-horizontal/editor.js',
-        array(
-            'wp-blocks',
-            'wp-element',
-            'wp-i18n',
-            'wp-components',
-            'wp-block-editor',
-            'wp-data',
-            'wp-dom-ready'
-        ),
-        filemtime(get_template_directory() . '/inc/blocks/section-title-text-horizontal/editor.js'),
-        true
-    );
-
+    
+    // Register the block style
+    $style_file = $block_dir . '/style.css';
+    if (file_exists($style_file)) {
+        wp_register_style(
+            'julianboelen-section-title-text-horizontal-style',
+            get_template_directory_uri() . '/inc/blocks/section-title-text-horizontal/style.css',
+            array(),
+            filemtime($style_file)
+        );
+    }
+    
     // Register the block type
-    register_block_type(__DIR__, [
-        'render_callback' => 'tf_render_section_title_text_horizontal_block',
-        'editor_script'   => 'julianboelen-section-title-text-horizontal-editor',
-    ]);
+    register_block_type($block_dir, array(
+        'editor_script' => 'julianboelen-section-title-text-horizontal-editor',
+        'style' => 'julianboelen-section-title-text-horizontal-style',
+        'render_callback' => 'julianboelen_render_section_title_text_horizontal_block'
+    ));
 }
+add_action('init', 'julianboelen_register_section_title_text_horizontal_block');
 
 /**
- * Server-side render callback for the section-title-text-horizontal block
+ * Render callback for the Section Title Text Horizontal block
  * 
- * @since 1.0.0
  * @param array $attributes Block attributes
  * @param string $content Block content
- * @param WP_Block $block Block object
+ * @param WP_Block $block Block instance
  * @return string Rendered block HTML
  */
-function tf_render_section_title_text_horizontal_block($attributes, $content, $block) {
+function julianboelen_render_section_title_text_horizontal_block($attributes, $content, $block) {
     // Start output buffering
     ob_start();
     
     // Include the render template
-    include __DIR__ . '/render.php';
+    $template_path = get_template_directory() . '/inc/blocks/section-title-text-horizontal/render.php';
+    
+    if (file_exists($template_path)) {
+        include $template_path;
+    } else {
+        // Fallback if template doesn't exist
+        echo '<!-- Section Title Text Horizontal block template not found -->';
+    }
     
     // Return the buffered content
     return ob_get_clean();
 }
 
 /**
- * Enqueue additional assets for the section-title-text-horizontal block
- * 
- * @since 1.0.0
- * @return void
- */
-function tf_section_title_text_horizontal_block_assets() {
-    // Enqueue frontend-specific styles if needed
-    if (!is_admin()) {
-        wp_enqueue_style(
-            'section-title-text-horizontal-frontend',
-            get_template_directory_uri() . '/inc/blocks/section-title-text-horizontal/style.css',
-            [],
-            filemtime(get_template_directory() . '/inc/blocks/section-title-text-horizontal/style.css')
-        );
-    }
-}
-
-// Hook into WordPress
-add_action('wp_enqueue_scripts', 'tf_section_title_text_horizontal_block_assets');
-add_action('enqueue_block_editor_assets', 'tf_section_title_text_horizontal_block_assets');
-
-/**
  * Add block category if it doesn't exist
  * 
- * @since 1.0.0
  * @param array $categories Existing block categories
+ * @param WP_Post $post Current post object
  * @return array Modified block categories
  */
-function tf_add_section_title_text_horizontal_block_category($categories) {
+function julianboelen_add_section_title_text_horizontal_block_category($categories, $post) {
     // Check if our custom category already exists
     $category_exists = false;
     foreach ($categories as $category) {
@@ -120,54 +108,80 @@ function tf_add_section_title_text_horizontal_block_category($categories) {
         }
     }
     
-    // Add our category if it doesn't exist
+    // Add category if it doesn't exist
     if (!$category_exists) {
-        $categories = array_merge(
-            [
-                [
-                    'slug'  => 'julianboelen-blocks',
-                    'title' => __('Julianboelen Theme Blocks', 'julianboelen'),
-                    'icon'  => 'block-default'
-                ]
-            ],
+        return array_merge(
+            array(
+                array(
+                    'slug' => 'julianboelen-blocks',
+                    'title' => __('Julian Boelen Blocks', 'julianboelen'),
+                    'icon' => 'layout'
+                )
+            ),
             $categories
         );
     }
     
     return $categories;
 }
-
-// Enable category registration (uncomment if needed)
-// add_filter('block_categories_all', 'tf_add_section_title_text_horizontal_block_category', 10, 1);
+add_filter('block_categories_all', 'julianboelen_add_section_title_text_horizontal_block_category', 10, 2);
 
 /**
- * Filter block attributes for security and validation
+ * Enqueue editor assets for better preview
  * 
- * @since 1.0.0
- * @param array $attributes Block attributes
- * @return array Filtered attributes
+ * @return void
  */
-function tf_filter_section_title_text_horizontal_block_attributes($attributes) {
-    // Sanitize common text fields
-    foreach (['welcomeText', 'mainHeading', 'description', 'buttonText'] as $field) {
-        if (isset($attributes[$field])) {
-            $attributes[$field] = wp_kses_post($attributes[$field]);
-        }
+function julianboelen_section_title_text_horizontal_editor_assets() {
+    // Add Tailwind CSS for editor preview (if not already loaded)
+    if (!wp_style_is('tailwindcss', 'enqueued')) {
+        wp_enqueue_style(
+            'tailwindcss-cdn',
+            'https://cdn.jsdelivr.net/npm/tailwindcss@3.3.0/dist/tailwind.min.css',
+            array(),
+            '3.3.0'
+        );
     }
-    
-    // Sanitize URL fields
-    foreach (['buttonUrl', 'imageUrl', 'linkUrl'] as $field) {
-        if (isset($attributes[$field])) {
-            $attributes[$field] = esc_url_raw($attributes[$field]);
-        }
-    }
-    
-    // Validate color values
-    foreach (['customButtonColor', 'backgroundColor', 'textColor', 'borderColor'] as $field) {
-        if (isset($attributes[$field])) {
-            $attributes[$field] = sanitize_hex_color($attributes[$field]);
-        }
-    }
-    
-    return $attributes;
 }
+add_action('enqueue_block_editor_assets', 'julianboelen_section_title_text_horizontal_editor_assets');
+
+/**
+ * Add inline styles for editor preview enhancements
+ * 
+ * @return void
+ */
+function julianboelen_section_title_text_horizontal_editor_inline_styles() {
+    $custom_css = '
+        .section-title-text-horizontal-preview {
+            transition: all 0.3s ease;
+        }
+        .section-title-text-horizontal-preview:hover {
+            border-color: #9ca3af;
+        }
+        .block-editor-rich-text__editable[data-is-placeholder-visible="true"] {
+            opacity: 0.6;
+        }
+    ';
+    
+    wp_add_inline_style('julianboelen-section-title-text-horizontal-style', $custom_css);
+}
+add_action('enqueue_block_editor_assets', 'julianboelen_section_title_text_horizontal_editor_inline_styles');
+
+/**
+ * Register block pattern for quick insertion
+ * 
+ * @return void
+ */
+function julianboelen_register_section_title_text_horizontal_pattern() {
+    if (function_exists('register_block_pattern')) {
+        register_block_pattern(
+            'julianboelen/section-title-text-horizontal-default',
+            array(
+                'title' => __('Section Title Text Horizontal - Default', 'julianboelen'),
+                'description' => __('A two-column layout with heading and body text', 'julianboelen'),
+                'categories' => array('julianboelen-blocks'),
+                'content' => '<!-- wp:julianboelen/section-title-text-horizontal /-->'
+            )
+        );
+    }
+}
+add_action('init', 'julianboelen_register_section_title_text_horizontal_pattern');

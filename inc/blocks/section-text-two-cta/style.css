@@ -1,3 +1,226 @@
-{
-  "content": "/**\n * Section Text Two CTA Block Styles\n * Professional, responsive styling with modern design patterns\n */\n\n/* Block Container */\n.section-text-two-cta-block {\n    position: relative;\n    width: 100%;\n}\n\n/* About Section */\n.section-text-two-cta-block .about-section {\n    transition: transform 0.3s ease, box-shadow 0.3s ease;\n}\n\n.section-text-two-cta-block .about-section:hover {\n    transform: translateY(-2px);\n    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);\n}\n\n.section-text-two-cta-block .about-section h2 {\n    line-height: 1.2;\n    letter-spacing: -0.025em;\n}\n\n.section-text-two-cta-block .about-section p {\n    font-size: 1rem;\n    line-height: 1.75;\n}\n\n/* CTA Cards */\n.section-text-two-cta-block .cta-card {\n    position: relative;\n    overflow: hidden;\n    transition: transform 0.3s ease, box-shadow 0.3s ease;\n    min-height: 280px;\n}\n\n.section-text-two-cta-block .cta-card:hover {\n    transform: translateY(-4px);\n    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.2), 0 10px 20px -8px rgba(0, 0, 0, 0.15);\n}\n\n.section-text-two-cta-block .cta-card::before {\n    content: '';\n    position: absolute;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);\n    pointer-events: none;\n    opacity: 0;\n    transition: opacity 0.3s ease;\n}\n\n.section-text-two-cta-block .cta-card:hover::before {\n    opacity: 1;\n}\n\n.section-text-two-cta-block .cta-card h2 {\n    line-height: 1.2;\n    letter-spacing: -0.025em;\n    position: relative;\n    z-index: 1;\n}\n\n.section-text-two-cta-block .cta-card p {\n    position: relative;\n    z-index: 1;\n    line-height: 1.75;\n}\n\n/* CTA Button */\n.section-text-two-cta-block .cta-button {\n    position: absolute;\n    bottom: 2rem;\n    right: 2rem;\n    width: 3.5rem;\n    height: 3.5rem;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    background-color: #ffffff;\n    border-radius: 9999px;\n    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);\n    transition: all 0.2s ease;\n    z-index: 2;\n    cursor: pointer;\n}\n\n.section-text-two-cta-block .cta-button:hover {\n    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);\n    transform: scale(1.05);\n}\n\n.section-text-two-cta-block .cta-button:active {\n    transform: scale(0.98);\n}\n\n.section-text-two-cta-block .cta-button svg {\n    transition: transform 0.2s ease;\n}\n\n.section-text-two-cta-block .cta-button:hover svg {\n    transform: translateX(4px);\n}\n\n/* Focus States for Accessibility */\n.section-text-two-cta-block .cta-button:focus {\n    outline: none;\n    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);\n}\n\n.section-text-two-cta-block .cta-button:focus-visible {\n    outline: 2px solid currentColor;\n    outline-offset: 2px;\n}\n\n/* Responsive Typography */\n@media (max-width: 640px) {\n    .section-text-two-cta-block .about-section h2,\n    .section-text-two-cta-block .cta-card h2 {\n        font-size: 1.875rem;\n        line-height: 2.25rem;\n    }\n    \n    .section-text-two-cta-block .cta-card p {\n        font-size: 0.875rem;\n        line-height: 1.5rem;\n    }\n    \n    .section-text-two-cta-block .cta-button {\n        width: 3rem;\n        height: 3rem;\n        bottom: 1.5rem;\n        right: 1.5rem;\n    }\n    \n    .section-text-two-cta-block .cta-button svg {\n        width: 1.25rem;\n        height: 1.25rem;\n    }\n}\n\n@media (min-width: 641px) and (max-width: 1023px) {\n    .section-text-two-cta-block .about-section h2,\n    .section-text-two-cta-block .cta-card h2 {\n        font-size: 2.25rem;\n        line-height: 2.5rem;\n    }\n}\n\n/* Grid Layout Enhancements */\n@media (min-width: 1024px) {\n    .section-text-two-cta-block > div > div {\n        align-items: stretch;\n    }\n    \n    .section-text-two-cta-block .cta-card {\n        min-height: 320px;\n    }\n}\n\n/* Print Styles */\n@media print {\n    .section-text-two-cta-block .cta-button {\n        display: none;\n    }\n    \n    .section-text-two-cta-block .cta-card,\n    .section-text-two-cta-block .about-section {\n        box-shadow: none;\n        border: 1px solid #e5e7eb;\n    }\n}\n\n/* Reduced Motion Support */\n@media (prefers-reduced-motion: reduce) {\n    .section-text-two-cta-block .cta-card,\n    .section-text-two-cta-block .about-section,\n    .section-text-two-cta-block .cta-button,\n    .section-text-two-cta-block .cta-button svg {\n        transition: none;\n    }\n    \n    .section-text-two-cta-block .cta-card:hover,\n    .section-text-two-cta-block .about-section:hover {\n        transform: none;\n    }\n}\n\n/* Dark Mode Support */\n@media (prefers-color-scheme: dark) {\n    .section-text-two-cta-block .about-section {\n        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);\n    }\n    \n    .section-text-two-cta-block .about-section:hover {\n        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4);\n    }\n}\n\n/* Editor Specific Styles */\n.section-text-two-cta-editor-preview {\n    background-color: #f5f5f5;\n    padding: 1.25rem;\n    border-radius: 0.5rem;\n}\n\n.section-text-two-cta-editor-preview .cta-button {\n    pointer-events: none;\n}\n\n/* High Contrast Mode */\n@media (prefers-contrast: high) {\n    .section-text-two-cta-block .cta-card,\n    .section-text-two-cta-block .about-section {\n        border: 2px solid currentColor;\n    }\n    \n    .section-text-two-cta-block .cta-button {\n        border: 2px solid currentColor;\n    }\n}"
+/**
+ * Section Text Two CTA Block Styles
+ * Professional, responsive styling with modern design patterns
+ */
+
+/* Block Container */
+.section-text-two-cta-block {
+    position: relative;
+    width: 100%;
+}
+
+/* About Section */
+.section-text-two-cta-block .about-section {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.section-text-two-cta-block .about-section:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+.section-text-two-cta-block .about-section h2 {
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+}
+
+.section-text-two-cta-block .about-section p {
+    font-size: 1rem;
+    line-height: 1.75;
+}
+
+/* CTA Cards */
+.section-text-two-cta-block .cta-card {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    min-height: 280px;
+}
+
+.section-text-two-cta-block .cta-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.2), 0 10px 20px -8px rgba(0, 0, 0, 0.15);
+}
+
+.section-text-two-cta-block .cta-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.section-text-two-cta-block .cta-card:hover::before {
+    opacity: 1;
+}
+
+.section-text-two-cta-block .cta-card h2 {
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+    position: relative;
+    z-index: 1;
+}
+
+.section-text-two-cta-block .cta-card p {
+    position: relative;
+    z-index: 1;
+    line-height: 1.75;
+}
+
+/* CTA Button */
+.section-text-two-cta-block .cta-button {
+    position: absolute;
+    bottom: 2rem;
+    right: 2rem;
+    width: 3.5rem;
+    height: 3.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff;
+    border-radius: 9999px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    z-index: 2;
+    cursor: pointer;
+}
+
+.section-text-two-cta-block .cta-button:hover {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    transform: scale(1.05);
+}
+
+.section-text-two-cta-block .cta-button:active {
+    transform: scale(0.98);
+}
+
+.section-text-two-cta-block .cta-button svg {
+    transition: transform 0.2s ease;
+}
+
+.section-text-two-cta-block .cta-button:hover svg {
+    transform: translateX(4px);
+}
+
+/* Focus States for Accessibility */
+.section-text-two-cta-block .cta-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+}
+
+.section-text-two-cta-block .cta-button:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
+/* Responsive Typography */
+@media (max-width: 640px) {
+    .section-text-two-cta-block .about-section h2,
+    .section-text-two-cta-block .cta-card h2 {
+        font-size: 1.875rem;
+        line-height: 2.25rem;
+    }
+    
+    .section-text-two-cta-block .cta-card p {
+        font-size: 0.875rem;
+        line-height: 1.5rem;
+    }
+    
+    .section-text-two-cta-block .cta-button {
+        width: 3rem;
+        height: 3rem;
+        bottom: 1.5rem;
+        right: 1.5rem;
+    }
+    
+    .section-text-two-cta-block .cta-button svg {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+}
+
+@media (min-width: 641px) and (max-width: 1023px) {
+    .section-text-two-cta-block .about-section h2,
+    .section-text-two-cta-block .cta-card h2 {
+        font-size: 2.25rem;
+        line-height: 2.5rem;
+    }
+}
+
+/* Grid Layout Enhancements */
+@media (min-width: 1024px) {
+    .section-text-two-cta-block > div > div {
+        align-items: stretch;
+    }
+    
+    .section-text-two-cta-block .cta-card {
+        min-height: 320px;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .section-text-two-cta-block .cta-button {
+        display: none;
+    }
+    
+    .section-text-two-cta-block .cta-card,
+    .section-text-two-cta-block .about-section {
+        box-shadow: none;
+        border: 1px solid #e5e7eb;
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    .section-text-two-cta-block .cta-card,
+    .section-text-two-cta-block .about-section,
+    .section-text-two-cta-block .cta-button,
+    .section-text-two-cta-block .cta-button svg {
+        transition: none;
+    }
+    
+    .section-text-two-cta-block .cta-card:hover,
+    .section-text-two-cta-block .about-section:hover {
+        transform: none;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .section-text-two-cta-block .about-section {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+    }
+    
+    .section-text-two-cta-block .about-section:hover {
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+    }
+}
+
+/* Editor Specific Styles */
+.section-text-two-cta-editor-preview {
+    background-color: #f5f5f5;
+    padding: 1.25rem;
+    border-radius: 0.5rem;
+}
+
+.section-text-two-cta-editor-preview .cta-button {
+    pointer-events: none;
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .section-text-two-cta-block .cta-card,
+    .section-text-two-cta-block .about-section {
+        border: 2px solid currentColor;
+    }
+    
+    .section-text-two-cta-block .cta-button {
+        border: 2px solid currentColor;
+    }
 }

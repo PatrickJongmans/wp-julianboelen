@@ -1,3 +1,150 @@
 {
-  "content": "{\n  \"$schema\": \"https://schemas.wp.org/trunk/block.json\",\n  \"apiVersion\": 2,\n  \"name\": \"julianboelen/section-process\",\n  \"version\": \"1.0.0\",\n  \"title\": \"Section Process\",\n  \"category\": \"julianboelen-blocks\",\n  \"icon\": \"list-view\",\n  \"description\": \"A streamlined process section with customizable step cards\",\n  \"keywords\": [\"process\", \"steps\", \"cards\", \"workflow\", \"timeline\"],\n  \"supports\": {\n    \"html\": false,\n    \"anchor\": true,\n    \"customClassName\": true,\n    \"inserter\": true,\n    \"multiple\": true,\n    \"reusable\": true,\n    \"spacing\": {\n      \"padding\": true,\n      \"margin\": true\n    },\n    \"typography\": {\n      \"fontSize\": true,\n      \"lineHeight\": true\n    },\n    \"color\": {\n      \"background\": true,\n      \"text\": true\n    }\n  },\n  \"attributes\": {\n    \"sectionTitle\": {\n      \"type\": \"string\",\n      \"default\": \"Een gestroomlijnd proces\"\n    },\n    \"backgroundColor\": {\n      \"type\": \"string\",\n      \"default\": \"#f9fafb\"\n    },\n    \"titleColor\": {\n      \"type\": \"string\",\n      \"default\": \"#111827\"\n    },\n    \"cardBackgroundColor\": {\n      \"type\": \"string\",\n      \"default\": \"#ffffff\"\n    },\n    \"cardTextColor\": {\n      \"type\": \"string\",\n      \"default\": \"#374151\"\n    },\n    \"cardTitleColor\": {\n      \"type\": \"string\",\n      \"default\": \"#111827\"\n    },\n    \"enableHoverEffect\": {\n      \"type\": \"boolean\",\n      \"default\": true\n    },\n    \"columnsDesktop\": {\n      \"type\": \"number\",\n      \"default\": 4\n    },\n    \"columnsTablet\": {\n      \"type\": \"number\",\n      \"default\": 2\n    },\n    \"columnsMobile\": {\n      \"type\": \"number\",\n      \"default\": 1\n    },\n    \"cardGap\": {\n      \"type\": \"string\",\n      \"default\": \"6\"\n    },\n    \"processSteps\": {\n      \"type\": \"array\",\n      \"default\": [\n        {\n          \"id\": \"step-1\",\n          \"stepNumber\": \"01\",\n          \"title\": \"Solliciteren\",\n          \"description\": \"Solliciteer door jouw CV of Linkedin profiel op te sturen of direct op een vacature te reageren.\",\n          \"imageUrl\": \"https://images.unsplash.com/photo-1595147389795-37094173bfd8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4MTAzMDV8MHwxfHNlYXJjaHwzfHxpbWFnZXxlbnwwfDB8fHwxNzU5NjYzODYwfDA&ixlib=rb-4.1.0&q=80&w=1080&w=800&h=600&fit=crop\",\n          \"imageAlt\": \"Solliciteren\",\n          \"imageId\": null\n        },\n        {\n          \"id\": \"step-2\",\n          \"stepNumber\": \"02\",\n          \"title\": \"Profiel opstellen\",\n          \"description\": \"Solliciteer door jouw CV of Linkedin profiel op te sturen of direct op een vacature te reageren.\",\n          \"imageUrl\": \"https://images.unsplash.com/photo-1595147389795-37094173bfd8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4MTAzMDV8MHwxfHNlYXJjaHwzfHxpbWFnZXxlbnwwfDB8fHwxNzU5NjYzODYwfDA&ixlib=rb-4.1.0&q=80&w=1080&w=800&h=600&fit=crop\",\n          \"imageAlt\": \"Profiel opstellen\",\n          \"imageId\": null\n        },\n        {\n          \"id\": \"step-3\",\n          \"stepNumber\": \"03\",\n          \"title\": \"Op gesprek\",\n          \"description\": \"Solliciteer door jouw CV of Linkedin profiel op te sturen of direct op een vacature te reageren.\",\n          \"imageUrl\": \"https://images.unsplash.com/photo-1488372759477-a7f4aa078cb6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4MTAzMDV8MHwxfHNlYXJjaHw1fHxpbWFnZXxlbnwwfDB8fHwxNzU5NjYzODYwfDA&ixlib=rb-4.1.0&q=80&w=1080&w=800&h=600&fit=crop\",\n          \"imageAlt\": \"Op gesprek\",\n          \"imageId\": null\n        },\n        {\n          \"id\": \"step-4\",\n          \"stepNumber\": \"04\",\n          \"title\": \"Aan de slag!\",\n          \"description\": \"Solliciteer door jouw CV of Linkedin profiel op te sturen of direct op een vacature te reageren.\",\n          \"imageUrl\": \"https://images.unsplash.com/photo-1595147389795-37094173bfd8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4MTAzMDV8MHwxfHNlYXJjaHwzfHxpbWFnZXxlbnwwfDB8fHwxNzU5NjYzODYwfDA&ixlib=rb-4.1.0&q=80&w=1080&w=800&h=600&fit=crop\",\n          \"imageAlt\": \"Aan de slag\",\n          \"imageId\": null\n        }\n      ]\n    },\n    \"paddingTop\": {\n      \"type\": \"string\",\n      \"default\": \"12\"\n    },\n    \"paddingBottom\": {\n      \"type\": \"string\",\n      \"default\": \"12\"\n    },\n    \"titleMarginBottom\": {\n      \"type\": \"string\",\n      \"default\": \"8\"\n    },\n    \"cardBorderRadius\": {\n      \"type\": \"string\",\n      \"default\": \"lg\"\n    },\n    \"imageBorderRadius\": {\n      \"type\": \"string\",\n      \"default\": \"none\"\n    },\n    \"shadowStyle\": {\n      \"type\": \"string\",\n      \"default\": \"md\"\n    },\n    \"hoverShadowStyle\": {\n      \"type\": \"string\",\n      \"default\": \"lg\"\n    }\n  },\n  \"textdomain\": \"julianboelen\",\n  \"editorScript\": \"julianboelen-section-process-editor\",\n  \"style\": \"file:./style.css\",\n  \"render\": \"file:./render.php\"\n}"
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 2,
+  "name": "julianboelen/section-process",
+  "version": "1.0.0",
+  "title": "Section Process",
+  "category": "julianboelen-blocks",
+  "icon": "list-view",
+  "description": "A streamlined process section with customizable step cards",
+  "keywords": ["process", "steps", "cards", "workflow", "timeline"],
+  "supports": {
+    "html": false,
+    "anchor": true,
+    "customClassName": true,
+    "inserter": true,
+    "multiple": true,
+    "reusable": true,
+    "spacing": {
+      "padding": true,
+      "margin": true
+    },
+    "typography": {
+      "fontSize": true,
+      "lineHeight": true
+    },
+    "color": {
+      "background": true,
+      "text": true
+    }
+  },
+  "attributes": {
+    "sectionTitle": {
+      "type": "string",
+      "default": "Een gestroomlijnd proces"
+    },
+    "backgroundColor": {
+      "type": "string",
+      "default": "#f9fafb"
+    },
+    "titleColor": {
+      "type": "string",
+      "default": "#111827"
+    },
+    "cardBackgroundColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "cardTextColor": {
+      "type": "string",
+      "default": "#374151"
+    },
+    "cardTitleColor": {
+      "type": "string",
+      "default": "#111827"
+    },
+    "enableHoverEffect": {
+      "type": "boolean",
+      "default": true
+    },
+    "columnsDesktop": {
+      "type": "number",
+      "default": 4
+    },
+    "columnsTablet": {
+      "type": "number",
+      "default": 2
+    },
+    "columnsMobile": {
+      "type": "number",
+      "default": 1
+    },
+    "cardGap": {
+      "type": "string",
+      "default": "6"
+    },
+    "processSteps": {
+      "type": "array",
+      "default": [
+        {
+          "id": "step-1",
+          "stepNumber": "01",
+          "title": "Solliciteren",
+          "description": "Solliciteer door jouw CV of Linkedin profiel op te sturen of direct op een vacature te reageren.",
+          "imageUrl": "https://images.unsplash.com/photo-1595147389795-37094173bfd8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4MTAzMDV8MHwxfHNlYXJjaHwzfHxpbWFnZXxlbnwwfDB8fHwxNzU5NjYzODYwfDA&ixlib=rb-4.1.0&q=80&w=1080&w=800&h=600&fit=crop",
+          "imageAlt": "Solliciteren",
+          "imageId": null
+        },
+        {
+          "id": "step-2",
+          "stepNumber": "02",
+          "title": "Profiel opstellen",
+          "description": "Solliciteer door jouw CV of Linkedin profiel op te sturen of direct op een vacature te reageren.",
+          "imageUrl": "https://images.unsplash.com/photo-1595147389795-37094173bfd8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4MTAzMDV8MHwxfHNlYXJjaHwzfHxpbWFnZXxlbnwwfDB8fHwxNzU5NjYzODYwfDA&ixlib=rb-4.1.0&q=80&w=1080&w=800&h=600&fit=crop",
+          "imageAlt": "Profiel opstellen",
+          "imageId": null
+        },
+        {
+          "id": "step-3",
+          "stepNumber": "03",
+          "title": "Op gesprek",
+          "description": "Solliciteer door jouw CV of Linkedin profiel op te sturen of direct op een vacature te reageren.",
+          "imageUrl": "https://images.unsplash.com/photo-1488372759477-a7f4aa078cb6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4MTAzMDV8MHwxfHNlYXJjaHw1fHxpbWFnZXxlbnwwfDB8fHwxNzU5NjYzODYwfDA&ixlib=rb-4.1.0&q=80&w=1080&w=800&h=600&fit=crop",
+          "imageAlt": "Op gesprek",
+          "imageId": null
+        },
+        {
+          "id": "step-4",
+          "stepNumber": "04",
+          "title": "Aan de slag!",
+          "description": "Solliciteer door jouw CV of Linkedin profiel op te sturen of direct op een vacature te reageren.",
+          "imageUrl": "https://images.unsplash.com/photo-1595147389795-37094173bfd8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4MTAzMDV8MHwxfHNlYXJjaHwzfHxpbWFnZXxlbnwwfDB8fHwxNzU5NjYzODYwfDA&ixlib=rb-4.1.0&q=80&w=1080&w=800&h=600&fit=crop",
+          "imageAlt": "Aan de slag",
+          "imageId": null
+        }
+      ]
+    },
+    "paddingTop": {
+      "type": "string",
+      "default": "12"
+    },
+    "paddingBottom": {
+      "type": "string",
+      "default": "12"
+    },
+    "titleMarginBottom": {
+      "type": "string",
+      "default": "8"
+    },
+    "cardBorderRadius": {
+      "type": "string",
+      "default": "lg"
+    },
+    "imageBorderRadius": {
+      "type": "string",
+      "default": "none"
+    },
+    "shadowStyle": {
+      "type": "string",
+      "default": "md"
+    },
+    "hoverShadowStyle": {
+      "type": "string",
+      "default": "lg"
+    }
+  },
+  "textdomain": "julianboelen",
+  "editorScript": "julianboelen-section-process-editor",
+  "style": "file:./style.css",
+  "render": "file:./render.php"
 }

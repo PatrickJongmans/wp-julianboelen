@@ -1,11 +1,10 @@
 <?php
 /**
- * Block Loader: section-text-image
+ * Section Text Image Block Loader
  * 
- * This file registers the section-text-image block with WordPress.
- * It is automatically loaded by the main blocks.php file.
+ * Handles block registration and asset enqueuing
  * 
- * @package Julianboelen_Theme
+ * @package JulianBoelen
  * @since 1.0.0
  */
 
@@ -15,103 +14,78 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Register the section-text-image block
+ * Register the Section Text Image block
  * 
- * This function registers the block type and handles all necessary
- * dependencies including scripts, styles, and server-side rendering.
- * 
- * @since 1.0.0
  * @return void
  */
-function tf_register_section_text_image_block() {
-    // Check if block registration function exists
+function julianboelen_register_section_text_image_block() {
+    // Check if function exists (WordPress 5.8+)
     if (!function_exists('register_block_type')) {
         return;
     }
 
-    // Avoid duplicate registration
-    if (class_exists('WP_Block_Type_Registry')) {
-        $registry = WP_Block_Type_Registry::get_instance();
-        if (method_exists($registry, 'is_registered') && $registry->is_registered('julianboelen/section-text-image')) {
-            return;
-        }
-    }
+    // Get the directory path
+    $block_dir = dirname(__FILE__);
 
-    // Register editor script with explicit dependencies
+    // Register the block editor script
+    $editor_script_asset_path = $block_dir . '/build/index.asset.php';
+    $editor_script_asset = file_exists($editor_script_asset_path)
+        ? require $editor_script_asset_path
+        : ['dependencies' => ['wp-blocks', 'wp-element', 'wp-editor', 'wp-components', 'wp-i18n'], 'version' => filemtime($block_dir . '/editor.js')];
+
     wp_register_script(
         'julianboelen-section-text-image-editor',
-        get_template_directory_uri() . '/inc/blocks/section-text-image/editor.js',
-        array(
-            'wp-blocks',
-            'wp-element',
-            'wp-i18n',
-            'wp-components',
-            'wp-block-editor',
-            'wp-data',
-            'wp-dom-ready'
-        ),
-        filemtime(get_template_directory() . '/inc/blocks/section-text-image/editor.js'),
+        plugins_url('editor.js', __FILE__),
+        $editor_script_asset['dependencies'],
+        $editor_script_asset['version'],
         true
     );
 
+    // Register the block style
+    wp_register_style(
+        'julianboelen-section-text-image-style',
+        plugins_url('style.css', __FILE__),
+        [],
+        filemtime($block_dir . '/style.css')
+    );
+
     // Register the block type
-    register_block_type(__DIR__, [
-        'render_callback' => 'tf_render_section_text_image_block',
-        'editor_script'   => 'julianboelen-section-text-image-editor',
+    register_block_type($block_dir, [
+        'editor_script' => 'julianboelen-section-text-image-editor',
+        'style' => 'julianboelen-section-text-image-style',
+        'render_callback' => 'julianboelen_render_section_text_image_block'
     ]);
 }
+add_action('init', 'julianboelen_register_section_text_image_block');
 
 /**
- * Server-side render callback for the section-text-image block
+ * Render callback for the Section Text Image block
  * 
- * @since 1.0.0
  * @param array $attributes Block attributes
  * @param string $content Block content
  * @param WP_Block $block Block object
  * @return string Rendered block HTML
  */
-function tf_render_section_text_image_block($attributes, $content, $block) {
+function julianboelen_render_section_text_image_block($attributes, $content, $block) {
     // Start output buffering
     ob_start();
     
     // Include the render template
-    include __DIR__ . '/render.php';
+    include dirname(__FILE__) . '/render.php';
     
     // Return the buffered content
     return ob_get_clean();
 }
 
 /**
- * Enqueue additional assets for the section-text-image block
- * 
- * @since 1.0.0
- * @return void
- */
-function tf_section_text_image_block_assets() {
-    // Enqueue frontend-specific styles if needed
-    if (!is_admin()) {
-        wp_enqueue_style(
-            'section-text-image-frontend',
-            get_template_directory_uri() . '/inc/blocks/section-text-image/style.css',
-            [],
-            filemtime(get_template_directory() . '/inc/blocks/section-text-image/style.css')
-        );
-    }
-}
-
-// Hook into WordPress
-add_action('wp_enqueue_scripts', 'tf_section_text_image_block_assets');
-add_action('enqueue_block_editor_assets', 'tf_section_text_image_block_assets');
-
-/**
  * Add block category if it doesn't exist
  * 
- * @since 1.0.0
  * @param array $categories Existing block categories
+ * @param WP_Post $post Post object
  * @return array Modified block categories
  */
-function tf_add_section_text_image_block_category($categories) {
-    // Check if our custom category already exists
+function julianboelen_add_section_text_image_block_category($categories, $post) {
+    // Check if category already exists
     $category_exists = false;
     foreach ($categories as $category) {
         if ($category['slug'] === 'julianboelen-blocks') {
@@ -120,14 +94,14 @@ function tf_add_section_text_image_block_category($categories) {
         }
     }
     
-    // Add our category if it doesn't exist
+    // Add category if it doesn't exist
     if (!$category_exists) {
-        $categories = array_merge(
+        return array_merge(
             [
                 [
-                    'slug'  => 'julianboelen-blocks',
-                    'title' => __('Julianboelen Theme Blocks', 'julianboelen'),
-                    'icon'  => 'block-default'
+                    'slug' => 'julianboelen-blocks',
+                    'title' => __('Julian Boelen Blocks', 'julianboelen'),
+                    'icon' => 'layout'
                 ]
             ],
             $categories
@@ -136,38 +110,45 @@ function tf_add_section_text_image_block_category($categories) {
     
     return $categories;
 }
-
-// Enable category registration (uncomment if needed)
-// add_filter('block_categories_all', 'tf_add_section_text_image_block_category', 10, 1);
+add_filter('block_categories_all', 'julianboelen_add_section_text_image_block_category', 10, 2);
 
 /**
- * Filter block attributes for security and validation
+ * Enqueue block editor assets
  * 
- * @since 1.0.0
- * @param array $attributes Block attributes
- * @return array Filtered attributes
+ * @return void
  */
-function tf_filter_section_text_image_block_attributes($attributes) {
-    // Sanitize common text fields
-    foreach (['welcomeText', 'mainHeading', 'description', 'buttonText'] as $field) {
-        if (isset($attributes[$field])) {
-            $attributes[$field] = wp_kses_post($attributes[$field]);
+function julianboelen_section_text_image_editor_assets() {
+    // Add inline styles for better editor experience
+    $editor_styles = '
+        .section-text-image-block-preview {
+            position: relative;
         }
-    }
-    
-    // Sanitize URL fields
-    foreach (['buttonUrl', 'imageUrl', 'linkUrl'] as $field) {
-        if (isset($attributes[$field])) {
-            $attributes[$field] = esc_url_raw($attributes[$field]);
+        .section-text-image-block-preview .components-placeholder {
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-    }
-    
-    // Validate color values
-    foreach (['customButtonColor', 'backgroundColor', 'textColor', 'borderColor'] as $field) {
-        if (isset($attributes[$field])) {
-            $attributes[$field] = sanitize_hex_color($attributes[$field]);
+        .section-text-image-block-preview [contenteditable="true"]:focus {
+            outline: 2px solid #007cba;
+            outline-offset: 2px;
         }
-    }
+    ';
     
-    return $attributes;
+    wp_add_inline_style('wp-edit-blocks', $editor_styles);
 }
+add_action('enqueue_block_editor_assets', 'julianboelen_section_text_image_editor_assets');
+
+/**
+ * Add server-side rendering support
+ * 
+ * @return void
+ */
+function julianboelen_section_text_image_block_init() {
+    // Ensure Tailwind CSS classes are available if theme doesn't include them
+    if (!wp_style_is('tailwindcss', 'enqueued')) {
+        // Add fallback styles or enqueue Tailwind if needed
+        // This is optional and depends on your theme setup
+    }
+}
+add_action('wp_enqueue_scripts', 'julianboelen_section_text_image_block_init');

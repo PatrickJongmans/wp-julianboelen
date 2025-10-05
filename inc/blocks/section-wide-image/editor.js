@@ -1,3 +1,599 @@
-{
-  "content": "(function() {\n    const { registerBlockType } = wp.blocks;\n    const { InspectorControls, MediaUpload, MediaUploadCheck, useBlockProps, LinkControl } = wp.blockEditor;\n    const { Button, PanelBody, PanelRow, ToggleControl, SelectControl, RangeControl, TextControl, BaseControl, ColorPicker, Placeholder, Spinner } = wp.components;\n    const { Fragment, createElement, useState } = wp.element;\n    const { __ } = wp.i18n;\n\n    registerBlockType('julianboelen/section-wide-image', {\n        apiVersion: 2,\n        title: __('Section Wide Image', 'julianboelen'),\n        icon: 'format-image',\n        category: 'julianboelen-blocks',\n        description: __('Full-width image section with animation support and advanced image controls', 'julianboelen'),\n        supports: {\n            html: false,\n            anchor: true,\n            customClassName: true,\n            inserter: true,\n            multiple: true,\n            reusable: true,\n            spacing: {\n                padding: true,\n                margin: true\n            },\n            align: ['wide', 'full']\n        },\n        \n        attributes: {\n            imageUrl: { type: 'string', default: 'https://images.unsplash.com/photo-1575936123452-b67c3203c357?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4MTAzMDV8MHwxfHNlYXJjaHwxfHxpbWFnZXxlbnwwfDB8fHwxNzU5NjYzODYwfDA&ixlib=rb-4.1.0&q=80&w=1920' },\n            imageId: { type: 'number', default: 0 },\n            imageAlt: { type: 'string', default: 'Collaborative workspace with laptops, tablets, notebooks and coffee on wooden table' },\n            imageWidth: { type: 'number', default: 1920 },\n            imageHeight: { type: 'number', default: 800 },\n            objectFit: { type: 'string', default: 'cover', enum: ['cover', 'contain', 'fill', 'none', 'scale-down'] },\n            borderRadius: { type: 'string', default: '2xl', enum: ['none', 'sm', 'md', 'lg', 'xl', '2xl', '3xl', 'full'] },\n            enableAnimation: { type: 'boolean', default: true },\n            animationType: { type: 'string', default: 'fade-up', enum: ['fade', 'fade-up', 'fade-down', 'fade-left', 'fade-right', 'zoom-in', 'zoom-out', 'slide-up', 'slide-down', 'flip-left', 'flip-right'] },\n            animationDuration: { type: 'number', default: 1200 },\n            animationDelay: { type: 'number', default: 0 },\n            animationEasing: { type: 'string', default: 'ease-in-out', enum: ['linear', 'ease', 'ease-in', 'ease-out', 'ease-in-out', 'ease-in-back', 'ease-out-back', 'ease-in-out-back'] },\n            aspectRatio: { type: 'string', default: 'auto', enum: ['auto', '16/9', '4/3', '3/2', '21/9', '1/1'] },\n            maxHeight: { type: 'string', default: 'none' },\n            overlayEnabled: { type: 'boolean', default: false },\n            overlayColor: { type: 'string', default: 'rgba(0, 0, 0, 0.3)' },\n            overlayOpacity: { type: 'number', default: 30 },\n            linkUrl: { type: 'string', default: '' },\n            linkTarget: { type: 'string', default: '' },\n            linkRel: { type: 'string', default: '' },\n            enableLazyLoad: { type: 'boolean', default: true },\n            containerPadding: { type: 'string', default: 'none', enum: ['none', 'sm', 'md', 'lg', 'xl'] }\n        },\n\n        edit: function(props) {\n            const { attributes, setAttributes } = props;\n            const { \n                imageUrl,\n                imageId,\n                imageAlt,\n                imageWidth,\n                imageHeight,\n                objectFit,\n                borderRadius,\n                enableAnimation,\n                animationType,\n                animationDuration,\n                animationDelay,\n                animationEasing,\n                aspectRatio,\n                maxHeight,\n                overlayEnabled,\n                overlayColor,\n                overlayOpacity,\n                linkUrl,\n                linkTarget,\n                linkRel,\n                enableLazyLoad,\n                containerPadding\n            } = attributes;\n\n            const [showLinkControl, setShowLinkControl] = useState(false);\n            const [linkValue, setLinkValue] = useState({\n                url: linkUrl,\n                opensInNewTab: linkTarget === '_blank'\n            });\n\n            // SOPHISTICATED helper functions for dynamic styling\n            const getBorderRadiusClass = () => {\n                const radiusMap = {\n                    'none': 'rounded-none',\n                    'sm': 'rounded-sm',\n                    'md': 'rounded-md',\n                    'lg': 'rounded-lg',\n                    'xl': 'rounded-xl',\n                    '2xl': 'rounded-2xl',\n                    '3xl': 'rounded-3xl',\n                    'full': 'rounded-full'\n                };\n                return radiusMap[borderRadius] || 'rounded-2xl';\n            };\n\n            const getObjectFitClass = () => {\n                const fitMap = {\n                    'cover': 'object-cover',\n                    'contain': 'object-contain',\n                    'fill': 'object-fill',\n                    'none': 'object-none',\n                    'scale-down': 'object-scale-down'\n                };\n                return fitMap[objectFit] || 'object-cover';\n            };\n\n            const getAspectRatioClass = () => {\n                if (aspectRatio === 'auto') return '';\n                const ratioMap = {\n                    '16/9': 'aspect-video',\n                    '4/3': 'aspect-[4/3]',\n                    '3/2': 'aspect-[3/2]',\n                    '21/9': 'aspect-[21/9]',\n                    '1/1': 'aspect-square'\n                };\n                return ratioMap[aspectRatio] || '';\n            };\n\n            const getContainerPaddingClass = () => {\n                const paddingMap = {\n                    'none': '',\n                    'sm': 'px-4',\n                    'md': 'px-6 md:px-8',\n                    'lg': 'px-8 md:px-12',\n                    'xl': 'px-12 md:px-16 lg:px-20'\n                };\n                return paddingMap[containerPadding] || '';\n            };\n\n            const getAnimationAttributes = () => {\n                if (!enableAnimation) return {};\n                return {\n                    'data-aos': animationType,\n                    'data-aos-duration': animationDuration,\n                    'data-aos-delay': animationDelay,\n                    'data-aos-easing': animationEasing\n                };\n            };\n\n            const parseRgbaColor = (rgba) => {\n                const match = rgba.match(/rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)(?:,\\s*([\\d.]+))?\\)/);\n                if (match) {\n                    return {\n                        r: parseInt(match[1]),\n                        g: parseInt(match[2]),\n                        b: parseInt(match[3]),\n                        a: match[4] ? parseFloat(match[4]) : 1\n                    };\n                }\n                return { r: 0, g: 0, b: 0, a: 0.3 };\n            };\n\n            const rgbaToHex = (rgba) => {\n                const color = parseRgbaColor(rgba);\n                const toHex = (n) => {\n                    const hex = Math.round(n).toString(16);\n                    return hex.length === 1 ? '0' + hex : hex;\n                };\n                return `#${toHex(color.r)}${toHex(color.g)}${toHex(color.b)}`;\n            };\n\n            const hexToRgba = (hex, opacity) => {\n                const result = /^#?([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})$/i.exec(hex);\n                if (result) {\n                    const r = parseInt(result[1], 16);\n                    const g = parseInt(result[2], 16);\n                    const b = parseInt(result[3], 16);\n                    return `rgba(${r}, ${g}, ${b}, ${opacity / 100})`;\n                }\n                return `rgba(0, 0, 0, ${opacity / 100})`;\n            };\n\n            const handleLinkChange = (newLink) => {\n                setLinkValue(newLink);\n                setAttributes({\n                    linkUrl: newLink.url,\n                    linkTarget: newLink.opensInNewTab ? '_blank' : '',\n                    linkRel: newLink.opensInNewTab ? 'noopener noreferrer' : ''\n                });\n            };\n\n            const onSelectImage = (media) => {\n                setAttributes({\n                    imageUrl: media.url,\n                    imageId: media.id,\n                    imageAlt: media.alt || '',\n                    imageWidth: media.width || 1920,\n                    imageHeight: media.height || 800\n                });\n            };\n\n            const onRemoveImage = () => {\n                setAttributes({\n                    imageUrl: '',\n                    imageId: 0,\n                    imageAlt: ''\n                });\n            };\n\n            const handleOverlayColorChange = (color) => {\n                const newColor = hexToRgba(color.hex, overlayOpacity);\n                setAttributes({ overlayColor: newColor });\n            };\n\n            const handleOverlayOpacityChange = (value) => {\n                const hexColor = rgbaToHex(overlayColor);\n                const newColor = hexToRgba(hexColor, value);\n                setAttributes({ \n                    overlayOpacity: value,\n                    overlayColor: newColor \n                });\n            };\n\n            // Build dynamic styles for editor preview\n            const imageStyles = {\n                maxHeight: maxHeight !== 'none' ? maxHeight : undefined\n            };\n\n            const overlayStyles = overlayEnabled ? {\n                position: 'absolute',\n                top: 0,\n                left: 0,\n                right: 0,\n                bottom: 0,\n                backgroundColor: overlayColor,\n                pointerEvents: 'none',\n                borderRadius: 'inherit'\n            } : {};\n\n            // ADVANCED editor preview with realistic styling\n            return createElement(Fragment, null,\n                // SOPHISTICATED InspectorControls with multiple panels\n                createElement(InspectorControls, null,\n                    createElement(PanelBody, { \n                        title: __('Image Settings', 'julianboelen'), \n                        initialOpen: true \n                    },\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%' } },\n                                createElement(MediaUploadCheck, null,\n                                    createElement(MediaUpload, {\n                                        onSelect: onSelectImage,\n                                        allowedTypes: ['image'],\n                                        value: imageId,\n                                        render: ({ open }) => createElement('div', null,\n                                            createElement(Button, {\n                                                onClick: open,\n                                                variant: 'secondary',\n                                                style: { marginBottom: '10px', width: '100%' }\n                                            }, imageId ? __('Replace Image', 'julianboelen') : __('Select Image', 'julianboelen')),\n                                            imageId && createElement(Button, {\n                                                onClick: onRemoveImage,\n                                                variant: 'tertiary',\n                                                isDestructive: true,\n                                                style: { width: '100%' }\n                                            }, __('Remove Image', 'julianboelen'))\n                                        )\n                                    })\n                                )\n                            )\n                        ),\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%' } },\n                                createElement(TextControl, {\n                                    label: __('Alt Text', 'julianboelen'),\n                                    value: imageAlt,\n                                    onChange: (value) => setAttributes({ imageAlt: value }),\n                                    help: __('Describe the image for accessibility', 'julianboelen')\n                                })\n                            )\n                        ),\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%' } },\n                                createElement(SelectControl, {\n                                    label: __('Object Fit', 'julianboelen'),\n                                    value: objectFit,\n                                    options: [\n                                        { label: __('Cover', 'julianboelen'), value: 'cover' },\n                                        { label: __('Contain', 'julianboelen'), value: 'contain' },\n                                        { label: __('Fill', 'julianboelen'), value: 'fill' },\n                                        { label: __('None', 'julianboelen'), value: 'none' },\n                                        { label: __('Scale Down', 'julianboelen'), value: 'scale-down' }\n                                    ],\n                                    onChange: (value) => setAttributes({ objectFit: value }),\n                                    help: __('How the image should fit within its container', 'julianboelen')\n                                })\n                            )\n                        ),\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%' } },\n                                createElement(SelectControl, {\n                                    label: __('Aspect Ratio', 'julianboelen'),\n                                    value: aspectRatio,\n                                    options: [\n                                        { label: __('Auto', 'julianboelen'), value: 'auto' },\n                                        { label: __('16:9 (Video)', 'julianboelen'), value: '16/9' },\n                                        { label: __('4:3', 'julianboelen'), value: '4/3' },\n                                        { label: __('3:2', 'julianboelen'), value: '3/2' },\n                                        { label: __('21:9 (Ultrawide)', 'julianboelen'), value: '21/9' },\n                                        { label: __('1:1 (Square)', 'julianboelen'), value: '1/1' }\n                                    ],\n                                    onChange: (value) => setAttributes({ aspectRatio: value })\n                                })\n                            )\n                        ),\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%' } },\n                                createElement(TextControl, {\n                                    label: __('Max Height', 'julianboelen'),\n                                    value: maxHeight,\n                                    onChange: (value) => setAttributes({ maxHeight: value }),\n                                    help: __('e.g., 800px, 50vh, or \"none\"', 'julianboelen'),\n                                    placeholder: 'none'\n                                })\n                            )\n                        ),\n                        createElement(PanelRow, null,\n                            createElement(ToggleControl, {\n                                label: __('Enable Lazy Loading', 'julianboelen'),\n                                checked: enableLazyLoad,\n                                onChange: (value) => setAttributes({ enableLazyLoad: value }),\n                                help: __('Improves page load performance', 'julianboelen')\n                            })\n                        )\n                    ),\n                    \n                    createElement(PanelBody, { \n                        title: __('Design Settings', 'julianboelen'), \n                        initialOpen: false \n                    },\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%' } },\n                                createElement(SelectControl, {\n                                    label: __('Border Radius', 'julianboelen'),\n                                    value: borderRadius,\n                                    options: [\n                                        { label: __('None', 'julianboelen'), value: 'none' },\n                                        { label: __('Small', 'julianboelen'), value: 'sm' },\n                                        { label: __('Medium', 'julianboelen'), value: 'md' },\n                                        { label: __('Large', 'julianboelen'), value: 'lg' },\n                                        { label: __('Extra Large', 'julianboelen'), value: 'xl' },\n                                        { label: __('2X Large', 'julianboelen'), value: '2xl' },\n                                        { label: __('3X Large', 'julianboelen'), value: '3xl' },\n                                        { label: __('Full', 'julianboelen'), value: 'full' }\n                                    ],\n                                    onChange: (value) => setAttributes({ borderRadius: value })\n                                })\n                            )\n                        ),\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%' } },\n                                createElement(SelectControl, {\n                                    label: __('Container Padding', 'julianboelen'),\n                                    value: containerPadding,\n                                    options: [\n                                        { label: __('None', 'julianboelen'), value: 'none' },\n                                        { label: __('Small', 'julianboelen'), value: 'sm' },\n                                        { label: __('Medium', 'julianboelen'), value: 'md' },\n                                        { label: __('Large', 'julianboelen'), value: 'lg' },\n                                        { label: __('Extra Large', 'julianboelen'), value: 'xl' }\n                                    ],\n                                    onChange: (value) => setAttributes({ containerPadding: value }),\n                                    help: __('Horizontal padding around the image', 'julianboelen')\n                                })\n                            )\n                        ),\n                        createElement(PanelRow, null,\n                            createElement(ToggleControl, {\n                                label: __('Enable Overlay', 'julianboelen'),\n                                checked: overlayEnabled,\n                                onChange: (value) => setAttributes({ overlayEnabled: value }),\n                                help: __('Add a color overlay on top of the image', 'julianboelen')\n                            })\n                        ),\n                        overlayEnabled && createElement(Fragment, null,\n                            createElement(PanelRow, null,\n                                createElement('div', { style: { width: '100%' } },\n                                    createElement(BaseControl, {\n                                        label: __('Overlay Color', 'julianboelen')\n                                    },\n                                        createElement(ColorPicker, {\n                                            color: rgbaToHex(overlayColor),\n                                            onChange: handleOverlayColorChange,\n                                            disableAlpha: true\n                                        })\n                                    )\n                                )\n                            ),\n                            createElement(PanelRow, null,\n                                createElement('div', { style: { width: '100%' } },\n                                    createElement(RangeControl, {\n                                        label: __('Overlay Opacity', 'julianboelen'),\n                                        value: overlayOpacity,\n                                        onChange: handleOverlayOpacityChange,\n                                        min: 0,\n                                        max: 100,\n                                        step: 5\n                                    })\n                                )\n                            )\n                        )\n                    ),\n                    \n                    createElement(PanelBody, { \n                        title: __('Animation Settings', 'julianboelen'), \n                        initialOpen: false \n                    },\n                        createElement(PanelRow, null,\n                            createElement(ToggleControl, {\n                                label: __('Enable Animation', 'julianboelen'),\n                                checked: enableAnimation,\n                                onChange: (value) => setAttributes({ enableAnimation: value }),\n                                help: __('Animate image on scroll using AOS library', 'julianboelen')\n                            })\n                        ),\n                        enableAnimation && createElement(Fragment, null,\n                            createElement(PanelRow, null,\n                                createElement('div', { style: { width: '100%' } },\n                                    createElement(SelectControl, {\n                                        label: __('Animation Type', 'julianboelen'),\n                                        value: animationType,\n                                        options: [\n                                            { label: __('Fade', 'julianboelen'), value: 'fade' },\n                                            { label: __('Fade Up', 'julianboelen'), value: 'fade-up' },\n                                            { label: __('Fade Down', 'julianboelen'), value: 'fade-down' },\n                                            { label: __('Fade Left', 'julianboelen'), value: 'fade-left' },\n                                            { label: __('Fade Right', 'julianboelen'), value: 'fade-right' },\n                                            { label: __('Zoom In', 'julianboelen'), value: 'zoom-in' },\n                                            { label: __('Zoom Out', 'julianboelen'), value: 'zoom-out' },\n                                            { label: __('Slide Up', 'julianboelen'), value: 'slide-up' },\n                                            { label: __('Slide Down', 'julianboelen'), value: 'slide-down' },\n                                            { label: __('Flip Left', 'julianboelen'), value: 'flip-left' },\n                                            { label: __('Flip Right', 'julianboelen'), value: 'flip-right' }\n                                        ],\n                                        onChange: (value) => setAttributes({ animationType: value })\n                                    })\n                                )\n                            ),\n                            createElement(PanelRow, null,\n                                createElement('div', { style: { width: '100%' } },\n                                    createElement(RangeControl, {\n                                        label: __('Animation Duration (ms)', 'julianboelen'),\n                                        value: animationDuration,\n                                        onChange: (value) => setAttributes({ animationDuration: value }),\n                                        min: 200,\n                                        max: 3000,\n                                        step: 100\n                                    })\n                                )\n                            ),\n                            createElement(PanelRow, null,\n                                createElement('div', { style: { width: '100%' } },\n                                    createElement(RangeControl, {\n                                        label: __('Animation Delay (ms)', 'julianboelen'),\n                                        value: animationDelay,\n                                        onChange: (value) => setAttributes({ animationDelay: value }),\n                                        min: 0,\n                                        max: 2000,\n                                        step: 100,\n                                        help: __('Delay before animation starts', 'julianboelen')\n                                    })\n                                )\n                            ),\n                            createElement(PanelRow, null,\n                                createElement('div', { style: { width: '100%' } },\n                                    createElement(SelectControl, {\n                                        label: __('Animation Easing', 'julianboelen'),\n                                        value: animationEasing,\n                                        options: [\n                                            { label: __('Linear', 'julianboelen'), value: 'linear' },\n                                            { label: __('Ease', 'julianboelen'), value: 'ease' },\n                                            { label: __('Ease In', 'julianboelen'), value: 'ease-in' },\n                                            { label: __('Ease Out', 'julianboelen'), value: 'ease-out' },\n                                            { label: __('Ease In Out', 'julianboelen'), value: 'ease-in-out' },\n                                            { label: __('Ease In Back', 'julianboelen'), value: 'ease-in-back' },\n                                            { label: __('Ease Out Back', 'julianboelen'), value: 'ease-out-back' },\n                                            { label: __('Ease In Out Back', 'julianboelen'), value: 'ease-in-out-back' }\n                                        ],\n                                        onChange: (value) => setAttributes({ animationEasing: value })\n                                    })\n                                )\n                            )\n                        )\n                    ),\n                    \n                    createElement(PanelBody, { \n                        title: __('Link Settings', 'julianboelen'), \n                        initialOpen: false \n                    },\n                        createElement(PanelRow, null,\n                            createElement('div', { style: { width: '100%' } },\n                                createElement(Button, {\n                                    variant: showLinkControl ? 'secondary' : 'primary',\n                                    onClick: () => setShowLinkControl(!showLinkControl),\n                                    style: { width: '100%' }\n                                }, showLinkControl ? __('Hide Link Settings', 'julianboelen') : __('Add Link to Image', 'julianboelen')),\n                                showLinkControl && createElement('div', { style: { marginTop: '15px' } },\n                                    createElement(LinkControl, {\n                                        value: linkValue,\n                                        onChange: handleLinkChange,\n                                        settings: [\n                                            {\n                                                id: 'opensInNewTab',\n                                                title: __('Open in new tab', 'julianboelen')\n                                            }\n                                        ]\n                                    }),\n                                    linkUrl && createElement(Button, {\n                                        variant: 'tertiary',\n                                        isDestructive: true,\n                                        onClick: () => {\n                                            setAttributes({ linkUrl: '', linkTarget: '', linkRel: '' });\n                                            setLinkValue({ url: '', opensInNewTab: false });\n                                            setShowLinkControl(false);\n                                        },\n                                        style: { marginTop: '10px', width: '100%' }\n                                    }, __('Remove Link', 'julianboelen'))\n                                )\n                            )\n                        )\n                    )\n                ),\n                \n                // PROFESSIONAL editor preview with realistic styling\n                createElement('div', { \n                    ...useBlockProps({\n                        className: 'section-wide-image-block-editor w-full overflow-hidden ' + getContainerPaddingClass(),\n                        style: {\n                            border: '2px dashed #ccc',\n                            borderRadius: '8px',\n                            padding: '20px',\n                            backgroundColor: '#f9fafb'\n                        }\n                    })\n                },\n                    !imageUrl ? createElement(Placeholder, {\n                        icon: 'format-image',\n                        label: __('Section Wide Image', 'julianboelen'),\n                        instructions: __('Select an image to display in full width', 'julianboelen')\n                    },\n                        createElement(MediaUploadCheck, null,\n                            createElement(MediaUpload, {\n                                onSelect: onSelectImage,\n                                allowedTypes: ['image'],\n                                value: imageId,\n                                render: ({ open }) => createElement(Button, {\n                                    onClick: open,\n                                    variant: 'primary'\n                                }, __('Select Image', 'julianboelen'))\n                            })\n                        )\n                    ) : createElement('div', {\n                        className: 'w-full relative',\n                        ...getAnimationAttributes()\n                    },\n                        createElement('div', {\n                            className: 'relative ' + getAspectRatioClass(),\n                            style: { position: 'relative' }\n                        },\n                            createElement('img', {\n                                src: imageUrl,\n                                alt: imageAlt || __('Section image', 'julianboelen'),\n                                className: 'w-full h-auto ' + getObjectFitClass() + ' ' + getBorderRadiusClass(),\n                                style: imageStyles,\n                                loading: enableLazyLoad ? 'lazy' : 'eager'\n                            }),\n                            overlayEnabled && createElement('div', {\n                                className: getBorderRadiusClass(),\n                                style: overlayStyles\n                            }),\n                            enableAnimation && createElement('div', {\n                                style: {\n                                    position: 'absolute',\n                                    top: '10px',\n                                    right: '10px',\n                                    backgroundColor: 'rgba(0, 0, 0, 0.7)',\n                                    color: '#fff',\n                                    padding: '5px 10px',\n                                    borderRadius: '4px',\n                                    fontSize: '12px',\n                                    fontWeight: 'bold'\n                                }\n                            }, __('Animation: ', 'julianboelen') + animationType)\n                        )\n                    )\n                )\n            );\n        },\n\n        save: function() {\n            return null; // Server-side rendering\n        }\n    });\n})();"
-}
+(function() {
+    const { registerBlockType } = wp.blocks;
+    const { InspectorControls, MediaUpload, MediaUploadCheck, useBlockProps, LinkControl } = wp.blockEditor;
+    const { Button, PanelBody, PanelRow, ToggleControl, SelectControl, RangeControl, TextControl, BaseControl, ColorPicker, Placeholder, Spinner } = wp.components;
+    const { Fragment, createElement, useState } = wp.element;
+    const { __ } = wp.i18n;
+
+    registerBlockType('julianboelen/section-wide-image', {
+        apiVersion: 2,
+        title: __('Section Wide Image', 'julianboelen'),
+        icon: 'format-image',
+        category: 'julianboelen-blocks',
+        description: __('Full-width image section with animation support and advanced image controls', 'julianboelen'),
+        supports: {
+            html: false,
+            anchor: true,
+            customClassName: true,
+            inserter: true,
+            multiple: true,
+            reusable: true,
+            spacing: {
+                padding: true,
+                margin: true
+            },
+            align: ['wide', 'full']
+        },
+        
+        attributes: {
+            imageUrl: { type: 'string', default: 'https://images.unsplash.com/photo-1575936123452-b67c3203c357?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4MTAzMDV8MHwxfHNlYXJjaHwxfHxpbWFnZXxlbnwwfDB8fHwxNzU5NjYzODYwfDA&ixlib=rb-4.1.0&q=80&w=1920' },
+            imageId: { type: 'number', default: 0 },
+            imageAlt: { type: 'string', default: 'Collaborative workspace with laptops, tablets, notebooks and coffee on wooden table' },
+            imageWidth: { type: 'number', default: 1920 },
+            imageHeight: { type: 'number', default: 800 },
+            objectFit: { type: 'string', default: 'cover', enum: ['cover', 'contain', 'fill', 'none', 'scale-down'] },
+            borderRadius: { type: 'string', default: '2xl', enum: ['none', 'sm', 'md', 'lg', 'xl', '2xl', '3xl', 'full'] },
+            enableAnimation: { type: 'boolean', default: true },
+            animationType: { type: 'string', default: 'fade-up', enum: ['fade', 'fade-up', 'fade-down', 'fade-left', 'fade-right', 'zoom-in', 'zoom-out', 'slide-up', 'slide-down', 'flip-left', 'flip-right'] },
+            animationDuration: { type: 'number', default: 1200 },
+            animationDelay: { type: 'number', default: 0 },
+            animationEasing: { type: 'string', default: 'ease-in-out', enum: ['linear', 'ease', 'ease-in', 'ease-out', 'ease-in-out', 'ease-in-back', 'ease-out-back', 'ease-in-out-back'] },
+            aspectRatio: { type: 'string', default: 'auto', enum: ['auto', '16/9', '4/3', '3/2', '21/9', '1/1'] },
+            maxHeight: { type: 'string', default: 'none' },
+            overlayEnabled: { type: 'boolean', default: false },
+            overlayColor: { type: 'string', default: 'rgba(0, 0, 0, 0.3)' },
+            overlayOpacity: { type: 'number', default: 30 },
+            linkUrl: { type: 'string', default: '' },
+            linkTarget: { type: 'string', default: '' },
+            linkRel: { type: 'string', default: '' },
+            enableLazyLoad: { type: 'boolean', default: true },
+            containerPadding: { type: 'string', default: 'none', enum: ['none', 'sm', 'md', 'lg', 'xl'] }
+        },
+
+        edit: function(props) {
+            const { attributes, setAttributes } = props;
+            const { 
+                imageUrl,
+                imageId,
+                imageAlt,
+                imageWidth,
+                imageHeight,
+                objectFit,
+                borderRadius,
+                enableAnimation,
+                animationType,
+                animationDuration,
+                animationDelay,
+                animationEasing,
+                aspectRatio,
+                maxHeight,
+                overlayEnabled,
+                overlayColor,
+                overlayOpacity,
+                linkUrl,
+                linkTarget,
+                linkRel,
+                enableLazyLoad,
+                containerPadding
+            } = attributes;
+
+            const [showLinkControl, setShowLinkControl] = useState(false);
+            const [linkValue, setLinkValue] = useState({
+                url: linkUrl,
+                opensInNewTab: linkTarget === '_blank'
+            });
+
+            // SOPHISTICATED helper functions for dynamic styling
+            const getBorderRadiusClass = () => {
+                const radiusMap = {
+                    'none': 'rounded-none',
+                    'sm': 'rounded-sm',
+                    'md': 'rounded-md',
+                    'lg': 'rounded-lg',
+                    'xl': 'rounded-xl',
+                    '2xl': 'rounded-2xl',
+                    '3xl': 'rounded-3xl',
+                    'full': 'rounded-full'
+                };
+                return radiusMap[borderRadius] || 'rounded-2xl';
+            };
+
+            const getObjectFitClass = () => {
+                const fitMap = {
+                    'cover': 'object-cover',
+                    'contain': 'object-contain',
+                    'fill': 'object-fill',
+                    'none': 'object-none',
+                    'scale-down': 'object-scale-down'
+                };
+                return fitMap[objectFit] || 'object-cover';
+            };
+
+            const getAspectRatioClass = () => {
+                if (aspectRatio === 'auto') return '';
+                const ratioMap = {
+                    '16/9': 'aspect-video',
+                    '4/3': 'aspect-[4/3]',
+                    '3/2': 'aspect-[3/2]',
+                    '21/9': 'aspect-[21/9]',
+                    '1/1': 'aspect-square'
+                };
+                return ratioMap[aspectRatio] || '';
+            };
+
+            const getContainerPaddingClass = () => {
+                const paddingMap = {
+                    'none': '',
+                    'sm': 'px-4',
+                    'md': 'px-6 md:px-8',
+                    'lg': 'px-8 md:px-12',
+                    'xl': 'px-12 md:px-16 lg:px-20'
+                };
+                return paddingMap[containerPadding] || '';
+            };
+
+            const getAnimationAttributes = () => {
+                if (!enableAnimation) return {};
+                return {
+                    'data-aos': animationType,
+                    'data-aos-duration': animationDuration,
+                    'data-aos-delay': animationDelay,
+                    'data-aos-easing': animationEasing
+                };
+            };
+
+            const parseRgbaColor = (rgba) => {
+                const match = rgba.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+                if (match) {
+                    return {
+                        r: parseInt(match[1]),
+                        g: parseInt(match[2]),
+                        b: parseInt(match[3]),
+                        a: match[4] ? parseFloat(match[4]) : 1
+                    };
+                }
+                return { r: 0, g: 0, b: 0, a: 0.3 };
+            };
+
+            const rgbaToHex = (rgba) => {
+                const color = parseRgbaColor(rgba);
+                const toHex = (n) => {
+                    const hex = Math.round(n).toString(16);
+                    return hex.length === 1 ? '0' + hex : hex;
+                };
+                return `#${toHex(color.r)}${toHex(color.g)}${toHex(color.b)}`;
+            };
+
+            const hexToRgba = (hex, opacity) => {
+                const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                if (result) {
+                    const r = parseInt(result[1], 16);
+                    const g = parseInt(result[2], 16);
+                    const b = parseInt(result[3], 16);
+                    return `rgba(${r}, ${g}, ${b}, ${opacity / 100})`;
+                }
+                return `rgba(0, 0, 0, ${opacity / 100})`;
+            };
+
+            const handleLinkChange = (newLink) => {
+                setLinkValue(newLink);
+                setAttributes({
+                    linkUrl: newLink.url,
+                    linkTarget: newLink.opensInNewTab ? '_blank' : '',
+                    linkRel: newLink.opensInNewTab ? 'noopener noreferrer' : ''
+                });
+            };
+
+            const onSelectImage = (media) => {
+                setAttributes({
+                    imageUrl: media.url,
+                    imageId: media.id,
+                    imageAlt: media.alt || '',
+                    imageWidth: media.width || 1920,
+                    imageHeight: media.height || 800
+                });
+            };
+
+            const onRemoveImage = () => {
+                setAttributes({
+                    imageUrl: '',
+                    imageId: 0,
+                    imageAlt: ''
+                });
+            };
+
+            const handleOverlayColorChange = (color) => {
+                const newColor = hexToRgba(color.hex, overlayOpacity);
+                setAttributes({ overlayColor: newColor });
+            };
+
+            const handleOverlayOpacityChange = (value) => {
+                const hexColor = rgbaToHex(overlayColor);
+                const newColor = hexToRgba(hexColor, value);
+                setAttributes({ 
+                    overlayOpacity: value,
+                    overlayColor: newColor 
+                });
+            };
+
+            // Build dynamic styles for editor preview
+            const imageStyles = {
+                maxHeight: maxHeight !== 'none' ? maxHeight : undefined
+            };
+
+            const overlayStyles = overlayEnabled ? {
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: overlayColor,
+                pointerEvents: 'none',
+                borderRadius: 'inherit'
+            } : {};
+
+            // ADVANCED editor preview with realistic styling
+            return createElement(Fragment, null,
+                // SOPHISTICATED InspectorControls with multiple panels
+                createElement(InspectorControls, null,
+                    createElement(PanelBody, { 
+                        title: __('Image Settings', 'julianboelen'), 
+                        initialOpen: true 
+                    },
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(MediaUploadCheck, null,
+                                    createElement(MediaUpload, {
+                                        onSelect: onSelectImage,
+                                        allowedTypes: ['image'],
+                                        value: imageId,
+                                        render: ({ open }) => createElement('div', null,
+                                            createElement(Button, {
+                                                onClick: open,
+                                                variant: 'secondary',
+                                                style: { marginBottom: '10px', width: '100%' }
+                                            }, imageId ? __('Replace Image', 'julianboelen') : __('Select Image', 'julianboelen')),
+                                            imageId && createElement(Button, {
+                                                onClick: onRemoveImage,
+                                                variant: 'tertiary',
+                                                isDestructive: true,
+                                                style: { width: '100%' }
+                                            }, __('Remove Image', 'julianboelen'))
+                                        )
+                                    })
+                                )
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(TextControl, {
+                                    label: __('Alt Text', 'julianboelen'),
+                                    value: imageAlt,
+                                    onChange: (value) => setAttributes({ imageAlt: value }),
+                                    help: __('Describe the image for accessibility', 'julianboelen')
+                                })
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(SelectControl, {
+                                    label: __('Object Fit', 'julianboelen'),
+                                    value: objectFit,
+                                    options: [
+                                        { label: __('Cover', 'julianboelen'), value: 'cover' },
+                                        { label: __('Contain', 'julianboelen'), value: 'contain' },
+                                        { label: __('Fill', 'julianboelen'), value: 'fill' },
+                                        { label: __('None', 'julianboelen'), value: 'none' },
+                                        { label: __('Scale Down', 'julianboelen'), value: 'scale-down' }
+                                    ],
+                                    onChange: (value) => setAttributes({ objectFit: value }),
+                                    help: __('How the image should fit within its container', 'julianboelen')
+                                })
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(SelectControl, {
+                                    label: __('Aspect Ratio', 'julianboelen'),
+                                    value: aspectRatio,
+                                    options: [
+                                        { label: __('Auto', 'julianboelen'), value: 'auto' },
+                                        { label: __('16:9 (Video)', 'julianboelen'), value: '16/9' },
+                                        { label: __('4:3', 'julianboelen'), value: '4/3' },
+                                        { label: __('3:2', 'julianboelen'), value: '3/2' },
+                                        { label: __('21:9 (Ultrawide)', 'julianboelen'), value: '21/9' },
+                                        { label: __('1:1 (Square)', 'julianboelen'), value: '1/1' }
+                                    ],
+                                    onChange: (value) => setAttributes({ aspectRatio: value })
+                                })
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(TextControl, {
+                                    label: __('Max Height', 'julianboelen'),
+                                    value: maxHeight,
+                                    onChange: (value) => setAttributes({ maxHeight: value }),
+                                    help: __('e.g., 800px, 50vh, or "none"', 'julianboelen'),
+                                    placeholder: 'none'
+                                })
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement(ToggleControl, {
+                                label: __('Enable Lazy Loading', 'julianboelen'),
+                                checked: enableLazyLoad,
+                                onChange: (value) => setAttributes({ enableLazyLoad: value }),
+                                help: __('Improves page load performance', 'julianboelen')
+                            })
+                        )
+                    ),
+                    
+                    createElement(PanelBody, { 
+                        title: __('Design Settings', 'julianboelen'), 
+                        initialOpen: false 
+                    },
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(SelectControl, {
+                                    label: __('Border Radius', 'julianboelen'),
+                                    value: borderRadius,
+                                    options: [
+                                        { label: __('None', 'julianboelen'), value: 'none' },
+                                        { label: __('Small', 'julianboelen'), value: 'sm' },
+                                        { label: __('Medium', 'julianboelen'), value: 'md' },
+                                        { label: __('Large', 'julianboelen'), value: 'lg' },
+                                        { label: __('Extra Large', 'julianboelen'), value: 'xl' },
+                                        { label: __('2X Large', 'julianboelen'), value: '2xl' },
+                                        { label: __('3X Large', 'julianboelen'), value: '3xl' },
+                                        { label: __('Full', 'julianboelen'), value: 'full' }
+                                    ],
+                                    onChange: (value) => setAttributes({ borderRadius: value })
+                                })
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(SelectControl, {
+                                    label: __('Container Padding', 'julianboelen'),
+                                    value: containerPadding,
+                                    options: [
+                                        { label: __('None', 'julianboelen'), value: 'none' },
+                                        { label: __('Small', 'julianboelen'), value: 'sm' },
+                                        { label: __('Medium', 'julianboelen'), value: 'md' },
+                                        { label: __('Large', 'julianboelen'), value: 'lg' },
+                                        { label: __('Extra Large', 'julianboelen'), value: 'xl' }
+                                    ],
+                                    onChange: (value) => setAttributes({ containerPadding: value }),
+                                    help: __('Horizontal padding around the image', 'julianboelen')
+                                })
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement(ToggleControl, {
+                                label: __('Enable Overlay', 'julianboelen'),
+                                checked: overlayEnabled,
+                                onChange: (value) => setAttributes({ overlayEnabled: value }),
+                                help: __('Add a color overlay on top of the image', 'julianboelen')
+                            })
+                        ),
+                        overlayEnabled && createElement(Fragment, null,
+                            createElement(PanelRow, null,
+                                createElement('div', { style: { width: '100%' } },
+                                    createElement(BaseControl, {
+                                        label: __('Overlay Color', 'julianboelen')
+                                    },
+                                        createElement(ColorPicker, {
+                                            color: rgbaToHex(overlayColor),
+                                            onChange: handleOverlayColorChange,
+                                            disableAlpha: true
+                                        })
+                                    )
+                                )
+                            ),
+                            createElement(PanelRow, null,
+                                createElement('div', { style: { width: '100%' } },
+                                    createElement(RangeControl, {
+                                        label: __('Overlay Opacity', 'julianboelen'),
+                                        value: overlayOpacity,
+                                        onChange: handleOverlayOpacityChange,
+                                        min: 0,
+                                        max: 100,
+                                        step: 5
+                                    })
+                                )
+                            )
+                        )
+                    ),
+                    
+                    createElement(PanelBody, { 
+                        title: __('Animation Settings', 'julianboelen'), 
+                        initialOpen: false 
+                    },
+                        createElement(PanelRow, null,
+                            createElement(ToggleControl, {
+                                label: __('Enable Animation', 'julianboelen'),
+                                checked: enableAnimation,
+                                onChange: (value) => setAttributes({ enableAnimation: value }),
+                                help: __('Animate image on scroll using AOS library', 'julianboelen')
+                            })
+                        ),
+                        enableAnimation && createElement(Fragment, null,
+                            createElement(PanelRow, null,
+                                createElement('div', { style: { width: '100%' } },
+                                    createElement(SelectControl, {
+                                        label: __('Animation Type', 'julianboelen'),
+                                        value: animationType,
+                                        options: [
+                                            { label: __('Fade', 'julianboelen'), value: 'fade' },
+                                            { label: __('Fade Up', 'julianboelen'), value: 'fade-up' },
+                                            { label: __('Fade Down', 'julianboelen'), value: 'fade-down' },
+                                            { label: __('Fade Left', 'julianboelen'), value: 'fade-left' },
+                                            { label: __('Fade Right', 'julianboelen'), value: 'fade-right' },
+                                            { label: __('Zoom In', 'julianboelen'), value: 'zoom-in' },
+                                            { label: __('Zoom Out', 'julianboelen'), value: 'zoom-out' },
+                                            { label: __('Slide Up', 'julianboelen'), value: 'slide-up' },
+                                            { label: __('Slide Down', 'julianboelen'), value: 'slide-down' },
+                                            { label: __('Flip Left', 'julianboelen'), value: 'flip-left' },
+                                            { label: __('Flip Right', 'julianboelen'), value: 'flip-right' }
+                                        ],
+                                        onChange: (value) => setAttributes({ animationType: value })
+                                    })
+                                )
+                            ),
+                            createElement(PanelRow, null,
+                                createElement('div', { style: { width: '100%' } },
+                                    createElement(RangeControl, {
+                                        label: __('Animation Duration (ms)', 'julianboelen'),
+                                        value: animationDuration,
+                                        onChange: (value) => setAttributes({ animationDuration: value }),
+                                        min: 200,
+                                        max: 3000,
+                                        step: 100
+                                    })
+                                )
+                            ),
+                            createElement(PanelRow, null,
+                                createElement('div', { style: { width: '100%' } },
+                                    createElement(RangeControl, {
+                                        label: __('Animation Delay (ms)', 'julianboelen'),
+                                        value: animationDelay,
+                                        onChange: (value) => setAttributes({ animationDelay: value }),
+                                        min: 0,
+                                        max: 2000,
+                                        step: 100,
+                                        help: __('Delay before animation starts', 'julianboelen')
+                                    })
+                                )
+                            ),
+                            createElement(PanelRow, null,
+                                createElement('div', { style: { width: '100%' } },
+                                    createElement(SelectControl, {
+                                        label: __('Animation Easing', 'julianboelen'),
+                                        value: animationEasing,
+                                        options: [
+                                            { label: __('Linear', 'julianboelen'), value: 'linear' },
+                                            { label: __('Ease', 'julianboelen'), value: 'ease' },
+                                            { label: __('Ease In', 'julianboelen'), value: 'ease-in' },
+                                            { label: __('Ease Out', 'julianboelen'), value: 'ease-out' },
+                                            { label: __('Ease In Out', 'julianboelen'), value: 'ease-in-out' },
+                                            { label: __('Ease In Back', 'julianboelen'), value: 'ease-in-back' },
+                                            { label: __('Ease Out Back', 'julianboelen'), value: 'ease-out-back' },
+                                            { label: __('Ease In Out Back', 'julianboelen'), value: 'ease-in-out-back' }
+                                        ],
+                                        onChange: (value) => setAttributes({ animationEasing: value })
+                                    })
+                                )
+                            )
+                        )
+                    ),
+                    
+                    createElement(PanelBody, { 
+                        title: __('Link Settings', 'julianboelen'), 
+                        initialOpen: false 
+                    },
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(Button, {
+                                    variant: showLinkControl ? 'secondary' : 'primary',
+                                    onClick: () => setShowLinkControl(!showLinkControl),
+                                    style: { width: '100%' }
+                                }, showLinkControl ? __('Hide Link Settings', 'julianboelen') : __('Add Link to Image', 'julianboelen')),
+                                showLinkControl && createElement('div', { style: { marginTop: '15px' } },
+                                    createElement(LinkControl, {
+                                        value: linkValue,
+                                        onChange: handleLinkChange,
+                                        settings: [
+                                            {
+                                                id: 'opensInNewTab',
+                                                title: __('Open in new tab', 'julianboelen')
+                                            }
+                                        ]
+                                    }),
+                                    linkUrl && createElement(Button, {
+                                        variant: 'tertiary',
+                                        isDestructive: true,
+                                        onClick: () => {
+                                            setAttributes({ linkUrl: '', linkTarget: '', linkRel: '' });
+                                            setLinkValue({ url: '', opensInNewTab: false });
+                                            setShowLinkControl(false);
+                                        },
+                                        style: { marginTop: '10px', width: '100%' }
+                                    }, __('Remove Link', 'julianboelen'))
+                                )
+                            )
+                        )
+                    )
+                ),
+                
+                // PROFESSIONAL editor preview with realistic styling
+                createElement('div', { 
+                    ...useBlockProps({
+                        className: 'section-wide-image-block-editor w-full overflow-hidden ' + getContainerPaddingClass(),
+                        style: {
+                            border: '2px dashed #ccc',
+                            borderRadius: '8px',
+                            padding: '20px',
+                            backgroundColor: '#f9fafb'
+                        }
+                    })
+                },
+                    !imageUrl ? createElement(Placeholder, {
+                        icon: 'format-image',
+                        label: __('Section Wide Image', 'julianboelen'),
+                        instructions: __('Select an image to display in full width', 'julianboelen')
+                    },
+                        createElement(MediaUploadCheck, null,
+                            createElement(MediaUpload, {
+                                onSelect: onSelectImage,
+                                allowedTypes: ['image'],
+                                value: imageId,
+                                render: ({ open }) => createElement(Button, {
+                                    onClick: open,
+                                    variant: 'primary'
+                                }, __('Select Image', 'julianboelen'))
+                            })
+                        )
+                    ) : createElement('div', {
+                        className: 'w-full relative',
+                        ...getAnimationAttributes()
+                    },
+                        createElement('div', {
+                            className: 'relative ' + getAspectRatioClass(),
+                            style: { position: 'relative' }
+                        },
+                            createElement('img', {
+                                src: imageUrl,
+                                alt: imageAlt || __('Section image', 'julianboelen'),
+                                className: 'w-full h-auto ' + getObjectFitClass() + ' ' + getBorderRadiusClass(),
+                                style: imageStyles,
+                                loading: enableLazyLoad ? 'lazy' : 'eager'
+                            }),
+                            overlayEnabled && createElement('div', {
+                                className: getBorderRadiusClass(),
+                                style: overlayStyles
+                            }),
+                            enableAnimation && createElement('div', {
+                                style: {
+                                    position: 'absolute',
+                                    top: '10px',
+                                    right: '10px',
+                                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                                    color: '#fff',
+                                    padding: '5px 10px',
+                                    borderRadius: '4px',
+                                    fontSize: '12px',
+                                    fontWeight: 'bold'
+                                }
+                            }, __('Animation: ', 'julianboelen') + animationType)
+                        )
+                    )
+                )
+            );
+        },
+
+        save: function() {
+            return null; // Server-side rendering
+        }
+    });
+})();

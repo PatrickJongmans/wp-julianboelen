@@ -1,3 +1,107 @@
 {
-  "content": "{\n  \"$schema\": \"https://schemas.wp.org/trunk/block.json\",\n  \"apiVersion\": 2,\n  \"name\": \"julianboelen/section-title-text-horizontal\",\n  \"version\": \"1.0.0\",\n  \"title\": \"Section Title Text Horizontal\",\n  \"category\": \"julianboelen-blocks\",\n  \"icon\": \"columns\",\n  \"description\": \"A sophisticated two-column layout with heading on the left and body text on the right\",\n  \"keywords\": [\"section\", \"title\", \"text\", \"horizontal\", \"two-column\", \"layout\"],\n  \"supports\": {\n    \"html\": false,\n    \"anchor\": true,\n    \"customClassName\": true,\n    \"inserter\": true,\n    \"multiple\": true,\n    \"reusable\": true,\n    \"spacing\": {\n      \"padding\": true,\n      \"margin\": true\n    },\n    \"typography\": {\n      \"fontSize\": true,\n      \"lineHeight\": true\n    },\n    \"color\": {\n      \"background\": true,\n      \"text\": true\n    }\n  },\n  \"attributes\": {\n    \"heading\": {\n      \"type\": \"string\",\n      \"default\": \"Wij zijn Starapple en wij willen talent laten groeien!\"\n    },\n    \"paragraph1\": {\n      \"type\": \"string\",\n      \"default\": \"Een brug slaan tussen aanbod van en vraag naar uiterst specifieke IT-specialisten, dat is Starapple in één zin.\"\n    },\n    \"paragraph2\": {\n      \"type\": \"string\",\n      \"default\": \"Wij helpen je graag in jou zoektocht naar een nieuwe uitdaging zodat jij jouw carrière verder kunt ontwikkelen.\"\n    },\n    \"backgroundColor\": {\n      \"type\": \"string\",\n      \"default\": \"#ffffff\"\n    },\n    \"headingColor\": {\n      \"type\": \"string\",\n      \"default\": \"#111827\"\n    },\n    \"textColor\": {\n      \"type\": \"string\",\n      \"default\": \"#111827\"\n    },\n    \"headingSize\": {\n      \"type\": \"string\",\n      \"default\": \"large\",\n      \"enum\": [\"medium\", \"large\", \"xlarge\"]\n    },\n    \"textSize\": {\n      \"type\": \"string\",\n      \"default\": \"base\",\n      \"enum\": [\"small\", \"base\", \"large\"]\n    },\n    \"columnRatio\": {\n      \"type\": \"string\",\n      \"default\": \"5-7\",\n      \"enum\": [\"4-8\", \"5-7\", \"6-6\"]\n    },\n    \"verticalAlignment\": {\n      \"type\": \"string\",\n      \"default\": \"start\",\n      \"enum\": [\"start\", \"center\", \"end\"]\n    },\n    \"columnGap\": {\n      \"type\": \"string\",\n      \"default\": \"large\",\n      \"enum\": [\"small\", \"medium\", \"large\", \"xlarge\"]\n    },\n    \"paddingTop\": {\n      \"type\": \"string\",\n      \"default\": \"16\"\n    },\n    \"paddingBottom\": {\n      \"type\": \"string\",\n      \"default\": \"16\"\n    },\n    \"maxWidth\": {\n      \"type\": \"string\",\n      \"default\": \"7xl\",\n      \"enum\": [\"5xl\", \"6xl\", \"7xl\", \"full\"]\n    },\n    \"showParagraph2\": {\n      \"type\": \"boolean\",\n      \"default\": true\n    },\n    \"paragraphSpacing\": {\n      \"type\": \"string\",\n      \"default\": \"6\"\n    }\n  },\n  \"textdomain\": \"julianboelen\",\n  \"editorScript\": \"julianboelen-section-title-text-horizontal-editor\",\n  \"style\": \"file:./style.css\",\n  \"render\": \"file:./render.php\"\n}"
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 2,
+  "name": "julianboelen/section-title-text-horizontal",
+  "version": "1.0.0",
+  "title": "Section Title Text Horizontal",
+  "category": "julianboelen-blocks",
+  "icon": "columns",
+  "description": "A sophisticated two-column layout with heading on the left and body text on the right",
+  "keywords": ["section", "title", "text", "horizontal", "two-column", "layout"],
+  "supports": {
+    "html": false,
+    "anchor": true,
+    "customClassName": true,
+    "inserter": true,
+    "multiple": true,
+    "reusable": true,
+    "spacing": {
+      "padding": true,
+      "margin": true
+    },
+    "typography": {
+      "fontSize": true,
+      "lineHeight": true
+    },
+    "color": {
+      "background": true,
+      "text": true
+    }
+  },
+  "attributes": {
+    "heading": {
+      "type": "string",
+      "default": "Wij zijn Starapple en wij willen talent laten groeien!"
+    },
+    "paragraph1": {
+      "type": "string",
+      "default": "Een brug slaan tussen aanbod van en vraag naar uiterst specifieke IT-specialisten, dat is Starapple in één zin."
+    },
+    "paragraph2": {
+      "type": "string",
+      "default": "Wij helpen je graag in jou zoektocht naar een nieuwe uitdaging zodat jij jouw carrière verder kunt ontwikkelen."
+    },
+    "backgroundColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "headingColor": {
+      "type": "string",
+      "default": "#111827"
+    },
+    "textColor": {
+      "type": "string",
+      "default": "#111827"
+    },
+    "headingSize": {
+      "type": "string",
+      "default": "large",
+      "enum": ["medium", "large", "xlarge"]
+    },
+    "textSize": {
+      "type": "string",
+      "default": "base",
+      "enum": ["small", "base", "large"]
+    },
+    "columnRatio": {
+      "type": "string",
+      "default": "5-7",
+      "enum": ["4-8", "5-7", "6-6"]
+    },
+    "verticalAlignment": {
+      "type": "string",
+      "default": "start",
+      "enum": ["start", "center", "end"]
+    },
+    "columnGap": {
+      "type": "string",
+      "default": "large",
+      "enum": ["small", "medium", "large", "xlarge"]
+    },
+    "paddingTop": {
+      "type": "string",
+      "default": "16"
+    },
+    "paddingBottom": {
+      "type": "string",
+      "default": "16"
+    },
+    "maxWidth": {
+      "type": "string",
+      "default": "7xl",
+      "enum": ["5xl", "6xl", "7xl", "full"]
+    },
+    "showParagraph2": {
+      "type": "boolean",
+      "default": true
+    },
+    "paragraphSpacing": {
+      "type": "string",
+      "default": "6"
+    }
+  },
+  "textdomain": "julianboelen",
+  "editorScript": "julianboelen-section-title-text-horizontal-editor",
+  "style": "file:./style.css",
+  "render": "file:./render.php"
 }
