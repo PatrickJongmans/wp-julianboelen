@@ -1,7 +1,7 @@
 (function() {
     const { registerBlockType } = wp.blocks;
     const { RichText, InspectorControls, MediaUpload, MediaUploadCheck, useBlockProps } = wp.blockEditor;
-    const { Button, PanelBody, PanelRow, ToggleControl, RangeControl, SelectControl, ColorPicker, TextControl, TextareaControl, BaseControl, IconButton, Toolbar, ToolbarButton, RadioControl, Notice, Spinner } = wp.components;
+    const { Button, PanelBody, PanelRow, ToggleControl, SelectControl, ColorPicker, TextControl, BaseControl, TextareaControl, RangeControl, Tooltip, Icon, Notice } = wp.components;
     const { Fragment, createElement, useState, useEffect } = wp.element;
     const { __ } = wp.i18n;
     const { useSelect } = wp.data;
@@ -11,7 +11,7 @@
         title: __('Section Process', 'julianboelen'),
         icon: 'list-view',
         category: 'julianboelen-blocks',
-        description: __('A streamlined process section with customizable step cards', 'julianboelen'),
+        description: __('A streamlined process section with customizable step cards from Process Step custom post type', 'julianboelen'),
         supports: {
             html: false,
             anchor: true,
@@ -34,178 +34,168 @@
         },
         
         attributes: {
-            sectionTitle: { type: 'string', default: 'Een gestroomlijnd proces' },
-            dataSource: { type: 'string', default: 'custom' },
-            postsToShow: { type: 'number', default: 4 },
-            orderBy: { type: 'string', default: 'menu_order' },
-            order: { type: 'string', default: 'ASC' },
-            backgroundColor: { type: 'string', default: '#f9fafb' },
-            titleColor: { type: 'string', default: '#111827' },
-            cardBackgroundColor: { type: 'string', default: '#ffffff' },
-            cardTextColor: { type: 'string', default: '#374151' },
-            cardTitleColor: { type: 'string', default: '#111827' },
-            enableHoverEffect: { type: 'boolean', default: true },
-            columnsDesktop: { type: 'number', default: 4 },
-            columnsTablet: { type: 'number', default: 2 },
-            columnsMobile: { type: 'number', default: 1 },
-            cardGap: { type: 'string', default: '6' },
+            sectionTitle: {
+                type: 'string',
+                default: 'Een gestroomlijnd proces'
+            },
+            backgroundColor: {
+                type: 'string',
+                default: '#f9fafb'
+            },
+            titleColor: {
+                type: 'string',
+                default: '#111827'
+            },
+            useCustomPostType: {
+                type: 'boolean',
+                default: true
+            },
+            postsPerPage: {
+                type: 'number',
+                default: -1
+            },
             processSteps: {
                 type: 'array',
-                default: [
-                    {
-                        id: 'step-1',
-                        stepNumber: '01',
-                        title: 'Solliciteren',
-                        description: 'Solliciteer door jouw CV of Linkedin profiel op te sturen of direct op een vacature te reageren.',
-                        imageUrl: 'https://images.unsplash.com/photo-1595147389795-37094173bfd8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4MTAzMDV8MHwxfHNlYXJjaHwzfHxpbWFnZXxlbnwwfDB8fHwxNzU5NjYzODYwfDA&ixlib=rb-4.1.0&q=80&w=1080&w=800&h=600&fit=crop',
-                        imageAlt: 'Solliciteren',
-                        imageId: null
-                    },
-                    {
-                        id: 'step-2',
-                        stepNumber: '02',
-                        title: 'Profiel opstellen',
-                        description: 'Solliciteer door jouw CV of Linkedin profiel op te sturen of direct op een vacature te reageren.',
-                        imageUrl: 'https://images.unsplash.com/photo-1595147389795-37094173bfd8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4MTAzMDV8MHwxfHNlYXJjaHwzfHxpbWFnZXxlbnwwfDB8fHwxNzU5NjYzODYwfDA&ixlib=rb-4.1.0&q=80&w=1080&w=800&h=600&fit=crop',
-                        imageAlt: 'Profiel opstellen',
-                        imageId: null
-                    },
-                    {
-                        id: 'step-3',
-                        stepNumber: '03',
-                        title: 'Op gesprek',
-                        description: 'Solliciteer door jouw CV of Linkedin profiel op te sturen of direct op een vacature te reageren.',
-                        imageUrl: 'https://images.unsplash.com/photo-1488372759477-a7f4aa078cb6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4MTAzMDV8MHwxfHNlYXJjaHw1fHxpbWFnZXxlbnwwfDB8fHwxNzU5NjYzODYwfDA&ixlib=rb-4.1.0&q=80&w=1080&w=800&h=600&fit=crop',
-                        imageAlt: 'Op gesprek',
-                        imageId: null
-                    },
-                    {
-                        id: 'step-4',
-                        stepNumber: '04',
-                        title: 'Aan de slag!',
-                        description: 'Solliciteer door jouw CV of Linkedin profiel op te sturen of direct op een vacature te reageren.',
-                        imageUrl: 'https://images.unsplash.com/photo-1595147389795-37094173bfd8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4MTAzMDV8MHwxfHNlYXJjaHwzfHxpbWFnZXxlbnwwfDB8fHwxNzU5NjYzODYwfDA&ixlib=rb-4.1.0&q=80&w=1080&w=800&h=600&fit=crop',
-                        imageAlt: 'Aan de slag',
-                        imageId: null
-                    }
-                ]
+                default: []
             },
-            paddingTop: { type: 'string', default: '12' },
-            paddingBottom: { type: 'string', default: '12' },
-            titleMarginBottom: { type: 'string', default: '8' },
-            cardBorderRadius: { type: 'string', default: 'lg' },
-            imageBorderRadius: { type: 'string', default: 'none' },
-            shadowStyle: { type: 'string', default: 'md' },
-            hoverShadowStyle: { type: 'string', default: 'lg' }
+            columnsDesktop: {
+                type: 'string',
+                default: '4'
+            },
+            columnsTablet: {
+                type: 'string',
+                default: '2'
+            },
+            columnsMobile: {
+                type: 'string',
+                default: '1'
+            },
+            cardBackgroundColor: {
+                type: 'string',
+                default: '#ffffff'
+            },
+            cardTextColor: {
+                type: 'string',
+                default: '#111827'
+            },
+            cardDescriptionColor: {
+                type: 'string',
+                default: '#6b7280'
+            },
+            enableHoverEffect: {
+                type: 'boolean',
+                default: true
+            },
+            cardBorderRadius: {
+                type: 'string',
+                default: '16'
+            },
+            gapSize: {
+                type: 'string',
+                default: '24'
+            },
+            showStepNumbers: {
+                type: 'boolean',
+                default: true
+            },
+            stepNumberStyle: {
+                type: 'string',
+                default: 'prefix'
+            }
         },
 
         edit: function(props) {
             const { attributes, setAttributes } = props;
             const { 
                 sectionTitle,
-                dataSource,
-                postsToShow,
-                orderBy,
-                order,
                 backgroundColor,
                 titleColor,
-                cardBackgroundColor,
-                cardTextColor,
-                cardTitleColor,
-                enableHoverEffect,
+                useCustomPostType,
+                postsPerPage,
+                processSteps,
                 columnsDesktop,
                 columnsTablet,
                 columnsMobile,
-                cardGap,
-                processSteps,
-                paddingTop,
-                paddingBottom,
-                titleMarginBottom,
+                cardBackgroundColor,
+                cardTextColor,
+                cardDescriptionColor,
+                enableHoverEffect,
                 cardBorderRadius,
-                imageBorderRadius,
-                shadowStyle,
-                hoverShadowStyle
+                gapSize,
+                showStepNumbers,
+                stepNumberStyle
             } = attributes;
 
-            const [selectedStepIndex, setSelectedStepIndex] = useState(null);
-            const [expandedStep, setExpandedStep] = useState(null);
+            const [activeStepIndex, setActiveStepIndex] = useState(null);
+            const [expandedPanels, setExpandedPanels] = useState({
+                dataSource: true,
+                content: false,
+                design: false,
+                layout: false,
+                cards: false
+            });
 
-            // Fetch Process Step posts from WordPress
+            // Fetch Process Steps from custom post type
             const processStepPosts = useSelect((select) => {
-                if (dataSource !== 'posts') return [];
+                if (!useCustomPostType) return [];
                 
                 return select('core').getEntityRecords('postType', 'process_step', {
-                    per_page: postsToShow,
-                    orderby: orderBy,
-                    order: order,
-                    _embed: true
+                    per_page: postsPerPage === -1 ? 100 : postsPerPage,
+                    status: 'publish',
+                    orderby: 'meta_value_num',
+                    meta_key: 'order',
+                    order: 'asc'
                 });
-            }, [dataSource, postsToShow, orderBy, order]);
+            }, [useCustomPostType, postsPerPage]);
 
-            // Convert posts to steps format
-            const getStepsToDisplay = () => {
-                if (dataSource === 'posts' && processStepPosts) {
-                    return processStepPosts.map((post, index) => {
-                        const featuredImage = post._embedded?.['wp:featuredmedia']?.[0];
-                        return {
-                            id: `post-${post.id}`,
-                            stepNumber: String(index + 1).padStart(2, '0'),
-                            title: post.title.rendered,
-                            description: post.excerpt.rendered.replace(/<[^>]*>/g, ''),
-                            imageUrl: featuredImage?.source_url || '',
-                            imageAlt: featuredImage?.alt_text || post.title.rendered,
-                            imageId: featuredImage?.id || null
-                        };
-                    });
-                }
-                return processSteps;
-            };
+            // Convert fetched posts to process steps format
+            const dynamicProcessSteps = processStepPosts ? processStepPosts.map((post, index) => {
+                const featuredMedia = post.featured_media ? 
+                    useSelect((select) => select('core').getMedia(post.featured_media)) : null;
+                
+                return {
+                    id: 'step-' + post.id,
+                    stepNumber: String(index + 1).padStart(2, '0'),
+                    title: post.title.rendered,
+                    description: post.content.rendered.replace(/<[^>]*>/g, ''),
+                    imageUrl: featuredMedia?.source_url || '',
+                    imageAlt: featuredMedia?.alt_text || post.title.rendered,
+                    imageId: post.featured_media || null
+                };
+            }) : [];
 
-            const stepsToDisplay = getStepsToDisplay();
+            // Determine which steps to display
+            const displaySteps = useCustomPostType ? dynamicProcessSteps : processSteps;
 
-            // Helper functions for dynamic styling
+            // SOPHISTICATED helper functions
             const getGridColumnsClass = () => {
-                const mobileClass = `grid-cols-${columnsMobile}`;
-                const tabletClass = `sm:grid-cols-${columnsTablet}`;
                 const desktopClass = `lg:grid-cols-${columnsDesktop}`;
+                const tabletClass = `md:grid-cols-${columnsTablet}`;
+                const mobileClass = `grid-cols-${columnsMobile}`;
                 return `${mobileClass} ${tabletClass} ${desktopClass}`;
             };
 
+            const getBorderRadiusStyle = () => {
+                return `${cardBorderRadius}px`;
+            };
+
             const getGapClass = () => {
-                return `gap-${cardGap}`;
+                const gapMap = {
+                    '16': 'gap-4',
+                    '24': 'gap-6',
+                    '32': 'gap-8',
+                    '40': 'gap-10'
+                };
+                return gapMap[gapSize] || 'gap-6';
             };
 
-            const getPaddingClass = () => {
-                return `py-${paddingTop} pb-${paddingBottom}`;
-            };
-
-            const getTitleMarginClass = () => {
-                return `mb-${titleMarginBottom}`;
-            };
-
-            const getBorderRadiusClass = (type) => {
-                if (type === 'none') return '';
-                return `rounded-${type}`;
-            };
-
-            const getShadowClass = (shadow) => {
-                if (shadow === 'none') return '';
-                return `shadow-${shadow}`;
-            };
-
-            const getHoverShadowClass = () => {
-                if (!enableHoverEffect || hoverShadowStyle === 'none') return '';
-                return `hover:shadow-${hoverShadowStyle}`;
-            };
-
-            // Step management functions (only for custom mode)
             const updateStep = (index, field, value) => {
-                const newSteps = [...processSteps];
-                newSteps[index] = {
-                    ...newSteps[index],
+                const updatedSteps = [...processSteps];
+                updatedSteps[index] = {
+                    ...updatedSteps[index],
                     [field]: value
                 };
-                setAttributes({ processSteps: newSteps });
+                setAttributes({ processSteps: updatedSteps });
             };
 
             const addStep = () => {
@@ -215,8 +205,8 @@
                     stepNumber: newStepNumber,
                     title: `Step ${newStepNumber}`,
                     description: 'Enter step description here.',
-                    imageUrl: 'https://images.unsplash.com/photo-1595147389795-37094173bfd8?w=800&h=600&fit=crop',
-                    imageAlt: `Step ${newStepNumber}`,
+                    imageUrl: '',
+                    imageAlt: '',
                     imageId: null
                 };
                 setAttributes({ processSteps: [...processSteps, newStep] });
@@ -224,125 +214,123 @@
 
             const removeStep = (index) => {
                 if (processSteps.length <= 1) {
-                    alert(__('You must have at least one step.', 'julianboelen'));
                     return;
                 }
-                const newSteps = processSteps.filter((_, i) => i !== index);
-                const renumberedSteps = newSteps.map((step, i) => ({
+                const updatedSteps = processSteps.filter((_, i) => i !== index);
+                const renumberedSteps = updatedSteps.map((step, i) => ({
                     ...step,
                     stepNumber: String(i + 1).padStart(2, '0')
                 }));
                 setAttributes({ processSteps: renumberedSteps });
-                if (selectedStepIndex === index) {
-                    setSelectedStepIndex(null);
+                if (activeStepIndex === index) {
+                    setActiveStepIndex(null);
                 }
             };
 
             const moveStep = (index, direction) => {
                 const newIndex = direction === 'up' ? index - 1 : index + 1;
-                if (newIndex < 0 || newIndex >= processSteps.length) return;
-                
-                const newSteps = [...processSteps];
-                [newSteps[index], newSteps[newIndex]] = [newSteps[newIndex], newSteps[index]];
-                
-                const renumberedSteps = newSteps.map((step, i) => ({
+                if (newIndex < 0 || newIndex >= processSteps.length) {
+                    return;
+                }
+                const updatedSteps = [...processSteps];
+                [updatedSteps[index], updatedSteps[newIndex]] = [updatedSteps[newIndex], updatedSteps[index]];
+                const renumberedSteps = updatedSteps.map((step, i) => ({
                     ...step,
                     stepNumber: String(i + 1).padStart(2, '0')
                 }));
-                
                 setAttributes({ processSteps: renumberedSteps });
-                setSelectedStepIndex(newIndex);
             };
 
-            const duplicateStep = (index) => {
-                const stepToDuplicate = processSteps[index];
-                const newStep = {
-                    ...stepToDuplicate,
-                    id: `step-${Date.now()}`,
-                    stepNumber: String(processSteps.length + 1).padStart(2, '0')
-                };
-                setAttributes({ processSteps: [...processSteps, newStep] });
+            const togglePanel = (panelName) => {
+                setExpandedPanels({
+                    ...expandedPanels,
+                    [panelName]: !expandedPanels[panelName]
+                });
             };
 
+            const renderStepNumberDisplay = (stepNumber) => {
+                if (!showStepNumbers) return null;
+                
+                if (stepNumberStyle === 'badge') {
+                    return createElement('span', {
+                        className: 'inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white text-sm font-bold mb-2'
+                    }, stepNumber);
+                }
+                
+                if (stepNumberStyle === 'prefix') {
+                    return stepNumber + '. ';
+                }
+                
+                return null;
+            };
+
+            // PROFESSIONAL editor preview
             return createElement(Fragment, null,
+                // SOPHISTICATED InspectorControls
                 createElement(InspectorControls, null,
                     // Data Source Panel
-                    createElement(PanelBody, { 
-                        title: __('Data Source', 'julianboelen'), 
-                        initialOpen: true 
+                    createElement(PanelBody, {
+                        title: __('Data Source', 'julianboelen'),
+                        initialOpen: expandedPanels.dataSource,
+                        onToggle: () => togglePanel('dataSource')
                     },
                         createElement(PanelRow, null,
                             createElement('div', { style: { width: '100%' } },
-                                createElement(RadioControl, {
-                                    label: __('Content Source', 'julianboelen'),
-                                    help: __('Choose between custom steps or Process Step posts', 'julianboelen'),
-                                    selected: dataSource,
-                                    options: [
-                                        { label: __('Custom Steps', 'julianboelen'), value: 'custom' },
-                                        { label: __('Process Step Posts', 'julianboelen'), value: 'posts' }
-                                    ],
-                                    onChange: (value) => setAttributes({ dataSource: value })
+                                createElement(ToggleControl, {
+                                    label: __('Use Process Step Post Type', 'julianboelen'),
+                                    checked: useCustomPostType,
+                                    onChange: (value) => setAttributes({ useCustomPostType: value }),
+                                    help: useCustomPostType 
+                                        ? __('Automatically displaying Process Steps from WordPress', 'julianboelen')
+                                        : __('Using manual step configuration', 'julianboelen')
                                 })
                             )
                         ),
-                        dataSource === 'posts' && createElement(Fragment, null,
+                        useCustomPostType && createElement(Fragment, null,
                             createElement(PanelRow, null,
-                                createElement('div', { style: { width: '100%', marginTop: '15px' } },
+                                createElement('div', { style: { width: '100%', marginTop: '16px' } },
                                     createElement(RangeControl, {
-                                        label: __('Number of Posts', 'julianboelen'),
-                                        value: postsToShow,
-                                        onChange: (value) => setAttributes({ postsToShow: value }),
+                                        label: __('Number of Steps to Display', 'julianboelen'),
+                                        value: postsPerPage === -1 ? 100 : postsPerPage,
+                                        onChange: (value) => setAttributes({ postsPerPage: value === 100 ? -1 : value }),
                                         min: 1,
-                                        max: 12,
-                                        step: 1,
-                                        help: __('How many process steps to display', 'julianboelen')
+                                        max: 100,
+                                        help: postsPerPage === -1 
+                                            ? __('Displaying all Process Steps', 'julianboelen')
+                                            : __('Limit the number of Process Steps shown', 'julianboelen')
                                     })
                                 )
                             ),
                             createElement(PanelRow, null,
-                                createElement('div', { style: { width: '100%' } },
-                                    createElement(SelectControl, {
-                                        label: __('Order By', 'julianboelen'),
-                                        value: orderBy,
-                                        options: [
-                                            { label: __('Custom Order (Menu Order)', 'julianboelen'), value: 'menu_order' },
-                                            { label: __('Date Published', 'julianboelen'), value: 'date' },
-                                            { label: __('Title', 'julianboelen'), value: 'title' }
-                                        ],
-                                        onChange: (value) => setAttributes({ orderBy: value })
-                                    })
-                                )
-                            ),
-                            createElement(PanelRow, null,
-                                createElement('div', { style: { width: '100%' } },
-                                    createElement(SelectControl, {
-                                        label: __('Order', 'julianboelen'),
-                                        value: order,
-                                        options: [
-                                            { label: __('Ascending', 'julianboelen'), value: 'ASC' },
-                                            { label: __('Descending', 'julianboelen'), value: 'DESC' }
-                                        ],
-                                        onChange: (value) => setAttributes({ order: value })
-                                    })
-                                )
-                            ),
-                            processStepPosts === null && createElement(PanelRow, null,
-                                createElement('div', { style: { padding: '20px', textAlign: 'center' } },
-                                    createElement(Spinner)
-                                )
-                            ),
-                            processStepPosts && processStepPosts.length === 0 && createElement(PanelRow, null,
                                 createElement(Notice, {
-                                    status: 'warning',
+                                    status: 'info',
                                     isDismissible: false
-                                }, __('No Process Step posts found. Create some posts first.', 'julianboelen'))
+                                },
+                                    createElement('p', { style: { margin: 0 } },
+                                        dynamicProcessSteps.length > 0
+                                            ? __(`Found ${dynamicProcessSteps.length} Process Step(s). Steps are ordered by the 'order' custom field.`, 'julianboelen')
+                                            : __('No Process Steps found. Create some Process Steps in WordPress first.', 'julianboelen')
+                                    )
+                                )
+                            )
+                        ),
+                        !useCustomPostType && createElement(PanelRow, null,
+                            createElement(Notice, {
+                                status: 'warning',
+                                isDismissible: false
+                            },
+                                createElement('p', { style: { margin: 0 } },
+                                    __('Manual mode: Manage steps in the "Process Steps" panel below.', 'julianboelen')
+                                )
                             )
                         )
                     ),
-                    
-                    createElement(PanelBody, { 
-                        title: __('Section Settings', 'julianboelen'), 
-                        initialOpen: true 
+
+                    // Content Settings Panel
+                    createElement(PanelBody, {
+                        title: __('Content Settings', 'julianboelen'),
+                        initialOpen: expandedPanels.content,
+                        onToggle: () => togglePanel('content')
                     },
                         createElement(PanelRow, null,
                             createElement('div', { style: { width: '100%' } },
@@ -355,51 +343,42 @@
                             )
                         ),
                         createElement(PanelRow, null,
-                            createElement('div', { style: { width: '100%', marginTop: '15px' } },
-                                createElement(RangeControl, {
-                                    label: __('Top Padding', 'julianboelen'),
-                                    value: parseInt(paddingTop),
-                                    onChange: (value) => setAttributes({ paddingTop: String(value) }),
-                                    min: 0,
-                                    max: 32,
-                                    step: 1
+                            createElement('div', { style: { width: '100%', marginTop: '16px' } },
+                                createElement(ToggleControl, {
+                                    label: __('Show Step Numbers', 'julianboelen'),
+                                    checked: showStepNumbers,
+                                    onChange: (value) => setAttributes({ showStepNumbers: value }),
+                                    help: __('Display step numbers on cards', 'julianboelen')
                                 })
                             )
                         ),
-                        createElement(PanelRow, null,
-                            createElement('div', { style: { width: '100%' } },
-                                createElement(RangeControl, {
-                                    label: __('Bottom Padding', 'julianboelen'),
-                                    value: parseInt(paddingBottom),
-                                    onChange: (value) => setAttributes({ paddingBottom: String(value) }),
-                                    min: 0,
-                                    max: 32,
-                                    step: 1
-                                })
-                            )
-                        ),
-                        createElement(PanelRow, null,
-                            createElement('div', { style: { width: '100%' } },
-                                createElement(RangeControl, {
-                                    label: __('Title Bottom Margin', 'julianboelen'),
-                                    value: parseInt(titleMarginBottom),
-                                    onChange: (value) => setAttributes({ titleMarginBottom: String(value) }),
-                                    min: 0,
-                                    max: 24,
-                                    step: 1
+                        showStepNumbers && createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%', marginTop: '16px' } },
+                                createElement(SelectControl, {
+                                    label: __('Step Number Style', 'julianboelen'),
+                                    value: stepNumberStyle,
+                                    options: [
+                                        { label: __('Prefix (01.)', 'julianboelen'), value: 'prefix' },
+                                        { label: __('Badge', 'julianboelen'), value: 'badge' },
+                                        { label: __('None', 'julianboelen'), value: 'none' }
+                                    ],
+                                    onChange: (value) => setAttributes({ stepNumberStyle: value })
                                 })
                             )
                         )
                     ),
-                    
-                    createElement(PanelBody, { 
-                        title: __('Color Settings', 'julianboelen'), 
-                        initialOpen: false 
+
+                    // Design Settings Panel
+                    createElement(PanelBody, {
+                        title: __('Design Settings', 'julianboelen'),
+                        initialOpen: expandedPanels.design,
+                        onToggle: () => togglePanel('design')
                     },
                         createElement(PanelRow, null,
                             createElement('div', { style: { width: '100%' } },
                                 createElement(BaseControl, {
-                                    label: __('Background Color', 'julianboelen')
+                                    label: __('Background Color', 'julianboelen'),
+                                    help: __('Section background color', 'julianboelen')
                                 },
                                     createElement(ColorPicker, {
                                         color: backgroundColor,
@@ -424,6 +403,108 @@
                         ),
                         createElement(PanelRow, null,
                             createElement('div', { style: { width: '100%', marginTop: '20px' } },
+                                createElement(SelectControl, {
+                                    label: __('Card Border Radius', 'julianboelen'),
+                                    value: cardBorderRadius,
+                                    options: [
+                                        { label: __('None (0px)', 'julianboelen'), value: '0' },
+                                        { label: __('Small (8px)', 'julianboelen'), value: '8' },
+                                        { label: __('Medium (12px)', 'julianboelen'), value: '12' },
+                                        { label: __('Large (16px)', 'julianboelen'), value: '16' },
+                                        { label: __('Extra Large (24px)', 'julianboelen'), value: '24' }
+                                    ],
+                                    onChange: (value) => setAttributes({ cardBorderRadius: value })
+                                })
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%', marginTop: '16px' } },
+                                createElement(ToggleControl, {
+                                    label: __('Enable Hover Effect', 'julianboelen'),
+                                    checked: enableHoverEffect,
+                                    onChange: (value) => setAttributes({ enableHoverEffect: value }),
+                                    help: __('Add shadow effect on card hover', 'julianboelen')
+                                })
+                            )
+                        )
+                    ),
+
+                    // Layout Settings Panel
+                    createElement(PanelBody, {
+                        title: __('Layout Settings', 'julianboelen'),
+                        initialOpen: expandedPanels.layout,
+                        onToggle: () => togglePanel('layout')
+                    },
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(SelectControl, {
+                                    label: __('Desktop Columns', 'julianboelen'),
+                                    value: columnsDesktop,
+                                    options: [
+                                        { label: __('2 Columns', 'julianboelen'), value: '2' },
+                                        { label: __('3 Columns', 'julianboelen'), value: '3' },
+                                        { label: __('4 Columns', 'julianboelen'), value: '4' }
+                                    ],
+                                    onChange: (value) => setAttributes({ columnsDesktop: value }),
+                                    help: __('Number of columns on desktop screens', 'julianboelen')
+                                })
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%', marginTop: '16px' } },
+                                createElement(SelectControl, {
+                                    label: __('Tablet Columns', 'julianboelen'),
+                                    value: columnsTablet,
+                                    options: [
+                                        { label: __('1 Column', 'julianboelen'), value: '1' },
+                                        { label: __('2 Columns', 'julianboelen'), value: '2' },
+                                        { label: __('3 Columns', 'julianboelen'), value: '3' }
+                                    ],
+                                    onChange: (value) => setAttributes({ columnsTablet: value }),
+                                    help: __('Number of columns on tablet screens', 'julianboelen')
+                                })
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%', marginTop: '16px' } },
+                                createElement(SelectControl, {
+                                    label: __('Mobile Columns', 'julianboelen'),
+                                    value: columnsMobile,
+                                    options: [
+                                        { label: __('1 Column', 'julianboelen'), value: '1' },
+                                        { label: __('2 Columns', 'julianboelen'), value: '2' }
+                                    ],
+                                    onChange: (value) => setAttributes({ columnsMobile: value }),
+                                    help: __('Number of columns on mobile screens', 'julianboelen')
+                                })
+                            )
+                        ),
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%', marginTop: '16px' } },
+                                createElement(SelectControl, {
+                                    label: __('Gap Size', 'julianboelen'),
+                                    value: gapSize,
+                                    options: [
+                                        { label: __('Small (16px)', 'julianboelen'), value: '16' },
+                                        { label: __('Medium (24px)', 'julianboelen'), value: '24' },
+                                        { label: __('Large (32px)', 'julianboelen'), value: '32' },
+                                        { label: __('Extra Large (40px)', 'julianboelen'), value: '40' }
+                                    ],
+                                    onChange: (value) => setAttributes({ gapSize: value }),
+                                    help: __('Space between cards', 'julianboelen')
+                                })
+                            )
+                        )
+                    ),
+
+                    // Card Styling Panel
+                    createElement(PanelBody, {
+                        title: __('Card Styling', 'julianboelen'),
+                        initialOpen: expandedPanels.cards,
+                        onToggle: () => togglePanel('cards')
+                    },
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
                                 createElement(BaseControl, {
                                     label: __('Card Background Color', 'julianboelen')
                                 },
@@ -441,8 +522,8 @@
                                     label: __('Card Title Color', 'julianboelen')
                                 },
                                     createElement(ColorPicker, {
-                                        color: cardTitleColor,
-                                        onChange: (color) => setAttributes({ cardTitleColor: color.hex }),
+                                        color: cardTextColor,
+                                        onChange: (color) => setAttributes({ cardTextColor: color.hex }),
                                         disableAlpha: false
                                     })
                                 )
@@ -451,164 +532,24 @@
                         createElement(PanelRow, null,
                             createElement('div', { style: { width: '100%', marginTop: '20px' } },
                                 createElement(BaseControl, {
-                                    label: __('Card Text Color', 'julianboelen')
+                                    label: __('Card Description Color', 'julianboelen')
                                 },
                                     createElement(ColorPicker, {
-                                        color: cardTextColor,
-                                        onChange: (color) => setAttributes({ cardTextColor: color.hex }),
+                                        color: cardDescriptionColor,
+                                        onChange: (color) => setAttributes({ cardDescriptionColor: color.hex }),
                                         disableAlpha: false
                                     })
                                 )
                             )
                         )
                     ),
-                    
-                    createElement(PanelBody, { 
-                        title: __('Layout Settings', 'julianboelen'), 
-                        initialOpen: false 
+
+                    // Process Steps Management Panel (only shown in manual mode)
+                    !useCustomPostType && createElement(PanelBody, {
+                        title: __('Manual Process Steps', 'julianboelen'),
+                        initialOpen: false
                     },
-                        createElement(PanelRow, null,
-                            createElement('div', { style: { width: '100%' } },
-                                createElement(RangeControl, {
-                                    label: __('Columns (Desktop)', 'julianboelen'),
-                                    value: columnsDesktop,
-                                    onChange: (value) => setAttributes({ columnsDesktop: value }),
-                                    min: 1,
-                                    max: 6,
-                                    step: 1
-                                })
-                            )
-                        ),
-                        createElement(PanelRow, null,
-                            createElement('div', { style: { width: '100%' } },
-                                createElement(RangeControl, {
-                                    label: __('Columns (Tablet)', 'julianboelen'),
-                                    value: columnsTablet,
-                                    onChange: (value) => setAttributes({ columnsTablet: value }),
-                                    min: 1,
-                                    max: 4,
-                                    step: 1
-                                })
-                            )
-                        ),
-                        createElement(PanelRow, null,
-                            createElement('div', { style: { width: '100%' } },
-                                createElement(RangeControl, {
-                                    label: __('Columns (Mobile)', 'julianboelen'),
-                                    value: columnsMobile,
-                                    onChange: (value) => setAttributes({ columnsMobile: value }),
-                                    min: 1,
-                                    max: 2,
-                                    step: 1
-                                })
-                            )
-                        ),
-                        createElement(PanelRow, null,
-                            createElement('div', { style: { width: '100%' } },
-                                createElement(SelectControl, {
-                                    label: __('Card Gap', 'julianboelen'),
-                                    value: cardGap,
-                                    options: [
-                                        { label: __('Extra Small (0.5rem)', 'julianboelen'), value: '2' },
-                                        { label: __('Small (1rem)', 'julianboelen'), value: '4' },
-                                        { label: __('Medium (1.5rem)', 'julianboelen'), value: '6' },
-                                        { label: __('Large (2rem)', 'julianboelen'), value: '8' },
-                                        { label: __('Extra Large (3rem)', 'julianboelen'), value: '12' }
-                                    ],
-                                    onChange: (value) => setAttributes({ cardGap: value })
-                                })
-                            )
-                        )
-                    ),
-                    
-                    createElement(PanelBody, { 
-                        title: __('Card Style Settings', 'julianboelen'), 
-                        initialOpen: false 
-                    },
-                        createElement(PanelRow, null,
-                            createElement('div', { style: { width: '100%' } },
-                                createElement(SelectControl, {
-                                    label: __('Card Border Radius', 'julianboelen'),
-                                    value: cardBorderRadius,
-                                    options: [
-                                        { label: __('None', 'julianboelen'), value: 'none' },
-                                        { label: __('Small', 'julianboelen'), value: 'sm' },
-                                        { label: __('Medium', 'julianboelen'), value: 'md' },
-                                        { label: __('Large', 'julianboelen'), value: 'lg' },
-                                        { label: __('Extra Large', 'julianboelen'), value: 'xl' },
-                                        { label: __('2XL', 'julianboelen'), value: '2xl' },
-                                        { label: __('Full', 'julianboelen'), value: 'full' }
-                                    ],
-                                    onChange: (value) => setAttributes({ cardBorderRadius: value })
-                                })
-                            )
-                        ),
-                        createElement(PanelRow, null,
-                            createElement('div', { style: { width: '100%' } },
-                                createElement(SelectControl, {
-                                    label: __('Image Border Radius', 'julianboelen'),
-                                    value: imageBorderRadius,
-                                    options: [
-                                        { label: __('None', 'julianboelen'), value: 'none' },
-                                        { label: __('Small', 'julianboelen'), value: 'sm' },
-                                        { label: __('Medium', 'julianboelen'), value: 'md' },
-                                        { label: __('Large', 'julianboelen'), value: 'lg' },
-                                        { label: __('Extra Large', 'julianboelen'), value: 'xl' }
-                                    ],
-                                    onChange: (value) => setAttributes({ imageBorderRadius: value })
-                                })
-                            )
-                        ),
-                        createElement(PanelRow, null,
-                            createElement('div', { style: { width: '100%' } },
-                                createElement(SelectControl, {
-                                    label: __('Shadow Style', 'julianboelen'),
-                                    value: shadowStyle,
-                                    options: [
-                                        { label: __('None', 'julianboelen'), value: 'none' },
-                                        { label: __('Small', 'julianboelen'), value: 'sm' },
-                                        { label: __('Medium', 'julianboelen'), value: 'md' },
-                                        { label: __('Large', 'julianboelen'), value: 'lg' },
-                                        { label: __('Extra Large', 'julianboelen'), value: 'xl' },
-                                        { label: __('2XL', 'julianboelen'), value: '2xl' }
-                                    ],
-                                    onChange: (value) => setAttributes({ shadowStyle: value })
-                                })
-                            )
-                        ),
-                        createElement(PanelRow, null,
-                            createElement(ToggleControl, {
-                                label: __('Enable Hover Effect', 'julianboelen'),
-                                checked: enableHoverEffect,
-                                onChange: (value) => setAttributes({ enableHoverEffect: value }),
-                                help: __('Add shadow effect on card hover', 'julianboelen')
-                            })
-                        ),
-                        enableHoverEffect && createElement(PanelRow, null,
-                            createElement('div', { style: { width: '100%' } },
-                                createElement(SelectControl, {
-                                    label: __('Hover Shadow Style', 'julianboelen'),
-                                    value: hoverShadowStyle,
-                                    options: [
-                                        { label: __('None', 'julianboelen'), value: 'none' },
-                                        { label: __('Small', 'julianboelen'), value: 'sm' },
-                                        { label: __('Medium', 'julianboelen'), value: 'md' },
-                                        { label: __('Large', 'julianboelen'), value: 'lg' },
-                                        { label: __('Extra Large', 'julianboelen'), value: 'xl' },
-                                        { label: __('2XL', 'julianboelen'), value: '2xl' }
-                                    ],
-                                    onChange: (value) => setAttributes({ hoverShadowStyle: value })
-                                })
-                            )
-                        )
-                    ),
-                    
-                    // Custom Steps Panel - only show in custom mode
-                    dataSource === 'custom' && createElement(PanelBody, { 
-                        title: __('Custom Process Steps', 'julianboelen'), 
-                        initialOpen: true 
-                    },
-                        createElement('div', { style: { marginBottom: '15px' } },
+                        createElement('div', { style: { marginBottom: '16px' } },
                             createElement(Button, {
                                 variant: 'primary',
                                 onClick: addStep,
@@ -619,11 +560,11 @@
                             createElement('div', {
                                 key: step.id,
                                 style: {
-                                    marginBottom: '15px',
-                                    padding: '15px',
-                                    border: selectedStepIndex === index ? '2px solid #2271b1' : '1px solid #ddd',
+                                    border: '1px solid #ddd',
                                     borderRadius: '4px',
-                                    backgroundColor: selectedStepIndex === index ? '#f0f6fc' : '#fff'
+                                    padding: '12px',
+                                    marginBottom: '12px',
+                                    backgroundColor: activeStepIndex === index ? '#f0f0f0' : '#fff'
                                 }
                             },
                                 createElement('div', {
@@ -631,40 +572,52 @@
                                         display: 'flex',
                                         justifyContent: 'space-between',
                                         alignItems: 'center',
-                                        marginBottom: '10px',
-                                        cursor: 'pointer'
-                                    },
-                                    onClick: () => setExpandedStep(expandedStep === index ? null : index)
+                                        marginBottom: '8px'
+                                    }
                                 },
-                                    createElement('strong', null, `${step.stepNumber}. ${step.title || __('Untitled Step', 'julianboelen')}`),
-                                    createElement('span', {
-                                        style: { fontSize: '18px' }
-                                    }, expandedStep === index ? '▼' : '▶')
+                                    createElement('strong', null, `${__('Step', 'julianboelen')} ${step.stepNumber}`),
+                                    createElement('div', { style: { display: 'flex', gap: '4px' } },
+                                        index > 0 && createElement(Button, {
+                                            isSmall: true,
+                                            icon: 'arrow-up-alt2',
+                                            onClick: () => moveStep(index, 'up'),
+                                            label: __('Move Up', 'julianboelen')
+                                        }),
+                                        index < processSteps.length - 1 && createElement(Button, {
+                                            isSmall: true,
+                                            icon: 'arrow-down-alt2',
+                                            onClick: () => moveStep(index, 'down'),
+                                            label: __('Move Down', 'julianboelen')
+                                        }),
+                                        createElement(Button, {
+                                            isSmall: true,
+                                            icon: activeStepIndex === index ? 'arrow-up' : 'arrow-down',
+                                            onClick: () => setActiveStepIndex(activeStepIndex === index ? null : index),
+                                            label: activeStepIndex === index ? __('Collapse', 'julianboelen') : __('Expand', 'julianboelen')
+                                        }),
+                                        processSteps.length > 1 && createElement(Button, {
+                                            isSmall: true,
+                                            isDestructive: true,
+                                            icon: 'trash',
+                                            onClick: () => removeStep(index),
+                                            label: __('Remove Step', 'julianboelen')
+                                        })
+                                    )
                                 ),
-                                expandedStep === index && createElement(Fragment, null,
-                                    createElement('div', { style: { marginBottom: '10px' } },
-                                        createElement(TextControl, {
-                                            label: __('Step Number', 'julianboelen'),
-                                            value: step.stepNumber,
-                                            onChange: (value) => updateStep(index, 'stepNumber', value)
-                                        })
-                                    ),
-                                    createElement('div', { style: { marginBottom: '10px' } },
-                                        createElement(TextControl, {
-                                            label: __('Step Title', 'julianboelen'),
-                                            value: step.title,
-                                            onChange: (value) => updateStep(index, 'title', value)
-                                        })
-                                    ),
-                                    createElement('div', { style: { marginBottom: '10px' } },
-                                        createElement(TextareaControl, {
-                                            label: __('Step Description', 'julianboelen'),
-                                            value: step.description,
-                                            onChange: (value) => updateStep(index, 'description', value),
-                                            rows: 3
-                                        })
-                                    ),
-                                    createElement('div', { style: { marginBottom: '10px' } },
+                                activeStepIndex === index && createElement('div', { style: { marginTop: '12px' } },
+                                    createElement(TextControl, {
+                                        label: __('Step Title', 'julianboelen'),
+                                        value: step.title,
+                                        onChange: (value) => updateStep(index, 'title', value)
+                                    }),
+                                    createElement(TextareaControl, {
+                                        label: __('Step Description', 'julianboelen'),
+                                        value: step.description,
+                                        onChange: (value) => updateStep(index, 'description', value),
+                                        rows: 3,
+                                        style: { marginTop: '12px' }
+                                    }),
+                                    createElement('div', { style: { marginTop: '12px' } },
                                         createElement(BaseControl, {
                                             label: __('Step Image', 'julianboelen')
                                         },
@@ -684,27 +637,22 @@
                                                             style: {
                                                                 width: '100%',
                                                                 height: 'auto',
-                                                                marginBottom: '10px',
+                                                                marginBottom: '8px',
                                                                 borderRadius: '4px'
                                                             }
                                                         }),
-                                                        createElement('div', {
-                                                            style: {
-                                                                display: 'flex',
-                                                                gap: '10px'
-                                                            }
-                                                        },
+                                                        createElement('div', { style: { display: 'flex', gap: '8px' } },
                                                             createElement(Button, {
-                                                                onClick: open,
-                                                                variant: step.imageUrl ? 'secondary' : 'primary'
+                                                                variant: step.imageUrl ? 'secondary' : 'primary',
+                                                                onClick: open
                                                             }, step.imageUrl ? __('Replace Image', 'julianboelen') : __('Select Image', 'julianboelen')),
                                                             step.imageUrl && createElement(Button, {
+                                                                variant: 'tertiary',
+                                                                isDestructive: true,
                                                                 onClick: () => {
                                                                     updateStep(index, 'imageUrl', '');
                                                                     updateStep(index, 'imageId', null);
-                                                                },
-                                                                variant: 'secondary',
-                                                                isDestructive: true
+                                                                }
                                                             }, __('Remove', 'julianboelen'))
                                                         )
                                                     )
@@ -712,130 +660,185 @@
                                             )
                                         )
                                     ),
-                                    createElement('div', { style: { marginBottom: '10px' } },
-                                        createElement(TextControl, {
-                                            label: __('Image Alt Text', 'julianboelen'),
-                                            value: step.imageAlt,
-                                            onChange: (value) => updateStep(index, 'imageAlt', value),
-                                            help: __('Describe the image for accessibility', 'julianboelen')
-                                        })
-                                    ),
-                                    createElement('div', {
-                                        style: {
-                                            display: 'flex',
-                                            gap: '8px',
-                                            flexWrap: 'wrap',
-                                            marginTop: '15px',
-                                            paddingTop: '15px',
-                                            borderTop: '1px solid #ddd'
-                                        }
-                                    },
-                                        createElement(Button, {
-                                            variant: 'secondary',
-                                            onClick: () => moveStep(index, 'up'),
-                                            disabled: index === 0,
-                                            size: 'small'
-                                        }, __('↑ Move Up', 'julianboelen')),
-                                        createElement(Button, {
-                                            variant: 'secondary',
-                                            onClick: () => moveStep(index, 'down'),
-                                            disabled: index === processSteps.length - 1,
-                                            size: 'small'
-                                        }, __('↓ Move Down', 'julianboelen')),
-                                        createElement(Button, {
-                                            variant: 'secondary',
-                                            onClick: () => duplicateStep(index),
-                                            size: 'small'
-                                        }, __('Duplicate', 'julianboelen')),
-                                        createElement(Button, {
-                                            variant: 'secondary',
-                                            onClick: () => removeStep(index),
-                                            isDestructive: true,
-                                            size: 'small'
-                                        }, __('Remove', 'julianboelen'))
-                                    )
+                                    createElement(TextControl, {
+                                        label: __('Image Alt Text', 'julianboelen'),
+                                        value: step.imageAlt,
+                                        onChange: (value) => updateStep(index, 'imageAlt', value),
+                                        help: __('Describe the image for accessibility', 'julianboelen'),
+                                        style: { marginTop: '12px' }
+                                    })
                                 )
                             )
                         )
                     )
                 ),
-                
-                // Editor preview
-                createElement('section', { 
+
+                // PROFESSIONAL editor preview
+                createElement('section', {
                     ...useBlockProps({
-                        className: `section-process-block w-full px-4 sm:px-6 lg:px-8 ${getPaddingClass()}`,
-                        style: { 
+                        className: 'section-process-block-editor',
+                        style: {
                             backgroundColor: backgroundColor,
-                            border: '2px dashed #ccc'
+                            padding: '48px 16px',
+                            minHeight: '400px'
                         }
                     })
                 },
                     createElement('div', { className: 'max-w-7xl mx-auto' },
+                        // Section Title
                         createElement(RichText, {
                             tagName: 'h2',
-                            className: `text-3xl sm:text-4xl lg:text-5xl font-bold ${getTitleMarginClass()}`,
-                            style: { color: titleColor },
+                            className: 'section-process-title',
+                            style: {
+                                color: titleColor,
+                                fontSize: 'clamp(2rem, 5vw, 3rem)',
+                                fontWeight: 'bold',
+                                marginBottom: '48px',
+                                lineHeight: '1.2'
+                            },
                             value: sectionTitle,
                             onChange: (value) => setAttributes({ sectionTitle: value }),
                             placeholder: __('Enter section title...', 'julianboelen')
                         }),
-                        
-                        dataSource === 'posts' && processStepPosts === null && createElement('div', {
-                            style: { textAlign: 'center', padding: '40px' }
+
+                        // Data source indicator
+                        useCustomPostType && createElement('div', {
+                            style: {
+                                marginBottom: '24px',
+                                padding: '12px 16px',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                borderRadius: '8px',
+                                border: '1px solid #3b82f6',
+                                textAlign: 'center'
+                            }
                         },
-                            createElement(Spinner),
-                            createElement('p', { style: { marginTop: '10px' } }, __('Loading process steps...', 'julianboelen'))
+                            createElement('p', {
+                                style: {
+                                    margin: 0,
+                                    color: '#1e40af',
+                                    fontSize: '0.875rem',
+                                    fontWeight: '500'
+                                }
+                            }, displaySteps.length > 0 
+                                ? __(`📊 Displaying ${displaySteps.length} Process Step(s) from WordPress`, 'julianboelen')
+                                : __('⚠️ No Process Steps found. Create some in WordPress!', 'julianboelen')
+                            )
                         ),
-                        
-                        dataSource === 'posts' && processStepPosts && processStepPosts.length === 0 && createElement('div', {
-                            style: { textAlign: 'center', padding: '40px' }
+
+                        // Process Cards Grid
+                        displaySteps.length > 0 ? createElement('div', {
+                            className: `grid ${getGridColumnsClass()} ${getGapClass()}`,
+                            style: {
+                                width: '100%'
+                            }
                         },
-                            createElement(Notice, {
-                                status: 'warning',
-                                isDismissible: false
-                            }, __('No Process Step posts found. Please create some posts or switch to custom mode.', 'julianboelen'))
-                        ),
-                        
-                        stepsToDisplay.length > 0 && createElement('div', {
-                            className: `grid ${getGridColumnsClass()} ${getGapClass()}`
-                        },
-                            stepsToDisplay.map((step, index) => 
+                            displaySteps.map((step, index) => 
                                 createElement('div', {
                                     key: step.id,
-                                    className: `${getBorderRadiusClass(cardBorderRadius)} ${getShadowClass(shadowStyle)} ${getHoverShadowClass()} overflow-hidden transition-shadow duration-300`,
+                                    className: 'process-card',
                                     style: {
                                         backgroundColor: cardBackgroundColor,
-                                        cursor: dataSource === 'custom' ? 'pointer' : 'default',
-                                        border: selectedStepIndex === index ? '2px solid #2271b1' : 'none'
+                                        borderRadius: getBorderRadiusStyle(),
+                                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                                        overflow: 'hidden',
+                                        transition: 'all 0.3s ease',
+                                        cursor: useCustomPostType ? 'default' : 'pointer',
+                                        border: !useCustomPostType && activeStepIndex === index ? '2px solid #2563eb' : '2px solid transparent'
                                     },
-                                    onClick: () => {
-                                        if (dataSource === 'custom') {
-                                            setSelectedStepIndex(index);
-                                            setExpandedStep(index);
-                                        }
-                                    }
+                                    onClick: () => !useCustomPostType && setActiveStepIndex(activeStepIndex === index ? null : index)
                                 },
-                                    createElement('div', {
-                                        className: `aspect-[4/3] overflow-hidden ${getBorderRadiusClass(imageBorderRadius)}`
+                                    // Image Container
+                                    step.imageUrl && createElement('div', {
+                                        style: {
+                                            aspectRatio: '4/3',
+                                            overflow: 'hidden',
+                                            position: 'relative'
+                                        }
                                     },
-                                        step.imageUrl && createElement('img', {
+                                        createElement('img', {
                                             src: step.imageUrl,
-                                            alt: step.imageAlt,
-                                            className: 'w-full h-full object-cover',
-                                            loading: 'lazy'
+                                            alt: step.imageAlt || step.title,
+                                            style: {
+                                                width: '100%',
+                                                height: '100%',
+                                                objectFit: 'cover'
+                                            }
                                         })
                                     ),
-                                    createElement('div', { className: 'p-6' },
+
+                                    // Card Content
+                                    createElement('div', {
+                                        style: {
+                                            padding: '24px'
+                                        }
+                                    },
                                         createElement('h3', {
-                                            className: 'text-xl font-bold mb-3',
-                                            style: { color: cardTitleColor }
-                                        }, `${step.stepNumber}. ${step.title}`),
-                                        createElement('p', {
-                                            className: 'leading-relaxed',
-                                            style: { color: cardTextColor }
-                                        }, step.description)
+                                            style: {
+                                                color: cardTextColor,
+                                                fontSize: '1.25rem',
+                                                fontWeight: 'bold',
+                                                marginBottom: '12px',
+                                                lineHeight: '1.4'
+                                            }
+                                        },
+                                            stepNumberStyle === 'badge' && renderStepNumberDisplay(step.stepNumber),
+                                            stepNumberStyle === 'prefix' && renderStepNumberDisplay(step.stepNumber),
+                                            step.title
+                                        ),
+                                        createElement('div', {
+                                            style: {
+                                                color: cardDescriptionColor,
+                                                fontSize: '0.875rem',
+                                                lineHeight: '1.6',
+                                                margin: 0
+                                            },
+                                            dangerouslySetInnerHTML: { __html: step.description }
+                                        })
                                     )
                                 )
+                            )
+                        ) : createElement('div', {
+                            style: {
+                                padding: '48px 24px',
+                                textAlign: 'center',
+                                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                borderRadius: '8px',
+                                border: '2px dashed #ef4444'
+                            }
+                        },
+                            createElement('p', {
+                                style: {
+                                    margin: 0,
+                                    color: '#991b1b',
+                                    fontSize: '1rem',
+                                    fontWeight: '500'
+                                }
+                            }, useCustomPostType 
+                                ? __('No Process Steps found. Please create some Process Steps in WordPress first.', 'julianboelen')
+                                : __('No manual steps configured. Add steps using the sidebar panel.', 'julianboelen')
+                            )
+                        ),
+
+                        // Helper text
+                        createElement('div', {
+                            style: {
+                                marginTop: '24px',
+                                padding: '16px',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                borderRadius: '8px',
+                                border: '1px dashed #3b82f6',
+                                textAlign: 'center'
+                            }
+                        },
+                            createElement('p', {
+                                style: {
+                                    margin: 0,
+                                    color: '#1e40af',
+                                    fontSize: '0.875rem'
+                                }
+                            }, useCustomPostType 
+                                ? __('💡 Steps are automatically fetched from the Process Step post type and ordered by the "order" custom field', 'julianboelen')
+                                : __('💡 Click on a card to edit it, or use the sidebar to manage all steps', 'julianboelen')
                             )
                         )
                     )
