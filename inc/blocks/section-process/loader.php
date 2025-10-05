@@ -1,10 +1,11 @@
 <?php
 /**
- * Section Process Block Loader
+ * Block Loader: section-process
  * 
- * Handles registration and asset enqueuing for the section-process block
+ * This file registers the section-process block with WordPress.
+ * It is automatically loaded by the main blocks.php file.
  * 
- * @package JulianBoelen
+ * @package Julianboelen_Theme
  * @since 1.0.0
  */
 
@@ -16,18 +17,27 @@ if (!defined('ABSPATH')) {
 /**
  * Register the section-process block
  * 
+ * This function registers the block type and handles all necessary
+ * dependencies including scripts, styles, and server-side rendering.
+ * 
+ * @since 1.0.0
  * @return void
  */
-function julianboelen_register_section_process_block() {
-    // Define block directory path
-    $block_dir = get_template_directory() . '/inc/blocks/section-process';
-    
-    // Check if block.json exists
-    if (!file_exists($block_dir . '/block.json')) {
+function tf_register_section_process_block() {
+    // Check if block registration function exists
+    if (!function_exists('register_block_type')) {
         return;
     }
-    
-    // Register the block editor script
+
+    // Avoid duplicate registration
+    if (class_exists('WP_Block_Type_Registry')) {
+        $registry = WP_Block_Type_Registry::get_instance();
+        if (method_exists($registry, 'is_registered') && $registry->is_registered('julianboelen/section-process')) {
+            return;
+        }
+    }
+
+    // Register editor script with explicit dependencies
     wp_register_script(
         'julianboelen-section-process-editor',
         get_template_directory_uri() . '/inc/blocks/section-process/editor.js',
@@ -35,71 +45,73 @@ function julianboelen_register_section_process_block() {
             'wp-blocks',
             'wp-element',
             'wp-i18n',
-            'wp-block-editor',
             'wp-components',
+            'wp-block-editor',
             'wp-data',
-            'wp-compose'
+            'wp-dom-ready'
         ),
-        filemtime($block_dir . '/editor.js'),
+        filemtime(get_template_directory() . '/inc/blocks/section-process/editor.js'),
         true
     );
-    
-    // Register the block style
-    wp_register_style(
-        'julianboelen-section-process-style',
-        get_template_directory_uri() . '/inc/blocks/section-process/style.css',
-        array(),
-        filemtime($block_dir . '/style.css')
-    );
-    
-    // Register the block using block.json
-    register_block_type($block_dir, array(
-        'editor_script' => 'julianboelen-section-process-editor',
-        'style' => 'julianboelen-section-process-style',
-        'render_callback' => 'julianboelen_render_section_process_block'
-    ));
+
+    // Register the block type
+    register_block_type(__DIR__, [
+        'render_callback' => 'tf_render_section_process_block',
+        'editor_script'   => 'julianboelen-section-process-editor',
+    ]);
 }
-add_action('init', 'julianboelen_register_section_process_block');
 
 /**
- * Render callback for the section-process block
+ * Server-side render callback for the section-process block
  * 
+ * @since 1.0.0
  * @param array $attributes Block attributes
  * @param string $content Block content
- * @param WP_Block $block Block instance
+ * @param WP_Block $block Block object
  * @return string Rendered block HTML
  */
-function julianboelen_render_section_process_block($attributes, $content, $block) {
+function tf_render_section_process_block($attributes, $content, $block) {
     // Start output buffering
     ob_start();
     
     // Include the render template
-    $template_path = get_template_directory() . '/inc/blocks/section-process/render.php';
-    
-    if (file_exists($template_path)) {
-        include $template_path;
-    } else {
-        // Fallback error message for administrators
-        if (current_user_can('manage_options')) {
-            echo '<div class="notice notice-error"><p>';
-            echo esc_html__('Section Process block template not found.', 'julianboelen');
-            echo '</p></div>';
-        }
-    }
+    include __DIR__ . '/render.php';
     
     // Return the buffered content
     return ob_get_clean();
 }
 
 /**
+ * Enqueue additional assets for the section-process block
+ * 
+ * @since 1.0.0
+ * @return void
+ */
+function tf_section_process_block_assets() {
+    // Enqueue frontend-specific styles if needed
+    if (!is_admin()) {
+        wp_enqueue_style(
+            'section-process-frontend',
+            get_template_directory_uri() . '/inc/blocks/section-process/style.css',
+            [],
+            filemtime(get_template_directory() . '/inc/blocks/section-process/style.css')
+        );
+    }
+}
+
+// Hook into WordPress
+add_action('wp_enqueue_scripts', 'tf_section_process_block_assets');
+add_action('enqueue_block_editor_assets', 'tf_section_process_block_assets');
+
+/**
  * Add block category if it doesn't exist
  * 
+ * @since 1.0.0
  * @param array $categories Existing block categories
- * @param WP_Post $post Current post object
  * @return array Modified block categories
  */
-function julianboelen_add_section_process_block_category($categories, $post) {
-    // Check if category already exists
+function tf_add_section_process_block_category($categories) {
+    // Check if our custom category already exists
     $category_exists = false;
     foreach ($categories as $category) {
         if ($category['slug'] === 'julianboelen-blocks') {
@@ -108,106 +120,54 @@ function julianboelen_add_section_process_block_category($categories, $post) {
         }
     }
     
-    // Add category if it doesn't exist
+    // Add our category if it doesn't exist
     if (!$category_exists) {
-        return array_merge(
-            array(
-                array(
-                    'slug' => 'julianboelen-blocks',
-                    'title' => __('Julian Boelen Blocks', 'julianboelen'),
-                    'icon' => 'layout'
-                )
-            ),
+        $categories = array_merge(
+            [
+                [
+                    'slug'  => 'julianboelen-blocks',
+                    'title' => __('Julianboelen Theme Blocks', 'julianboelen'),
+                    'icon'  => 'block-default'
+                ]
+            ],
             $categories
         );
     }
     
     return $categories;
 }
-add_filter('block_categories_all', 'julianboelen_add_section_process_block_category', 10, 2);
+
+// Enable category registration (uncomment if needed)
+// add_filter('block_categories_all', 'tf_add_section_process_block_category', 10, 1);
 
 /**
- * Enqueue block assets for both editor and frontend
+ * Filter block attributes for security and validation
  * 
- * @return void
+ * @since 1.0.0
+ * @param array $attributes Block attributes
+ * @return array Filtered attributes
  */
-function julianboelen_section_process_block_assets() {
-    // Enqueue frontend styles
-    if (!is_admin()) {
-        wp_enqueue_style('julianboelen-section-process-style');
-    }
-}
-add_action('enqueue_block_assets', 'julianboelen_section_process_block_assets');
-
-/**
- * Add inline styles for dynamic block styling
- * 
- * @return void
- */
-function julianboelen_section_process_inline_styles() {
-    // Only add on frontend
-    if (is_admin()) {
-        return;
-    }
-    
-    // Check if block is being used on current page
-    if (!has_block('julianboelen/section-process')) {
-        return;
-    }
-    
-    // Add any dynamic inline styles here if needed
-    $custom_css = "
-        /* Section Process Dynamic Styles */
-    ";
-    
-    wp_add_inline_style('julianboelen-section-process-style', $custom_css);
-}
-add_action('wp_enqueue_scripts', 'julianboelen_section_process_inline_styles', 20);
-
-/**
- * Add block pattern for section-process
- * 
- * @return void
- */
-function julianboelen_register_section_process_pattern() {
-    // Register block pattern
-    register_block_pattern(
-        'julianboelen/section-process-default',
-        array(
-            'title' => __('Process Section - Default', 'julianboelen'),
-            'description' => __('A streamlined process section with 4 steps', 'julianboelen'),
-            'categories' => array('julianboelen-blocks'),
-            'content' => '<!-- wp:julianboelen/section-process /-->',
-            'keywords' => array('process', 'steps', 'workflow', 'timeline')
-        )
-    );
-}
-add_action('init', 'julianboelen_register_section_process_pattern');
-
-/**
- * Add server-side rendering support for REST API
- * 
- * @param WP_REST_Response $response Response object
- * @param WP_Post $post Post object
- * @param WP_REST_Request $request Request object
- * @return WP_REST_Response Modified response
- */
-function julianboelen_section_process_rest_support($response, $post, $request) {
-    // Add rendered block content to REST API response
-    if (has_block('julianboelen/section-process', $post)) {
-        $blocks = parse_blocks($post->post_content);
-        $rendered_blocks = array();
-        
-        foreach ($blocks as $block) {
-            if ($block['blockName'] === 'julianboelen/section-process') {
-                $rendered_blocks[] = render_block($block);
-            }
+function tf_filter_section_process_block_attributes($attributes) {
+    // Sanitize common text fields
+    foreach (['welcomeText', 'mainHeading', 'description', 'buttonText'] as $field) {
+        if (isset($attributes[$field])) {
+            $attributes[$field] = wp_kses_post($attributes[$field]);
         }
-        
-        $response->data['rendered_section_process'] = $rendered_blocks;
     }
     
-    return $response;
+    // Sanitize URL fields
+    foreach (['buttonUrl', 'imageUrl', 'linkUrl'] as $field) {
+        if (isset($attributes[$field])) {
+            $attributes[$field] = esc_url_raw($attributes[$field]);
+        }
+    }
+    
+    // Validate color values
+    foreach (['customButtonColor', 'backgroundColor', 'textColor', 'borderColor'] as $field) {
+        if (isset($attributes[$field])) {
+            $attributes[$field] = sanitize_hex_color($attributes[$field]);
+        }
+    }
+    
+    return $attributes;
 }
-add_filter('rest_prepare_post', 'julianboelen_section_process_rest_support', 10, 3);
-add_filter('rest_prepare_page', 'julianboelen_section_process_rest_support', 10, 3);

@@ -33,6 +33,25 @@
       "type": "string",
       "default": "Een gestroomlijnd proces"
     },
+    "dataSource": {
+      "type": "string",
+      "default": "custom",
+      "enum": ["custom", "posts"]
+    },
+    "postsToShow": {
+      "type": "number",
+      "default": 4
+    },
+    "orderBy": {
+      "type": "string",
+      "default": "menu_order",
+      "enum": ["menu_order", "date", "title"]
+    },
+    "order": {
+      "type": "string",
+      "default": "ASC",
+      "enum": ["ASC", "DESC"]
+    },
     "backgroundColor": {
       "type": "string",
       "default": "#f9fafb"

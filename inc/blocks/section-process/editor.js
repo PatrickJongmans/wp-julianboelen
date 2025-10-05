@@ -1,9 +1,10 @@
 (function() {
     const { registerBlockType } = wp.blocks;
     const { RichText, InspectorControls, MediaUpload, MediaUploadCheck, useBlockProps } = wp.blockEditor;
-    const { Button, PanelBody, PanelRow, ToggleControl, RangeControl, SelectControl, ColorPicker, TextControl, TextareaControl, BaseControl, IconButton, Toolbar, ToolbarButton } = wp.components;
-    const { Fragment, createElement, useState } = wp.element;
+    const { Button, PanelBody, PanelRow, ToggleControl, RangeControl, SelectControl, ColorPicker, TextControl, TextareaControl, BaseControl, IconButton, Toolbar, ToolbarButton, RadioControl, Notice, Spinner } = wp.components;
+    const { Fragment, createElement, useState, useEffect } = wp.element;
     const { __ } = wp.i18n;
+    const { useSelect } = wp.data;
 
     registerBlockType('julianboelen/section-process', {
         apiVersion: 2,
@@ -34,6 +35,10 @@
         
         attributes: {
             sectionTitle: { type: 'string', default: 'Een gestroomlijnd proces' },
+            dataSource: { type: 'string', default: 'custom' },
+            postsToShow: { type: 'number', default: 4 },
+            orderBy: { type: 'string', default: 'menu_order' },
+            order: { type: 'string', default: 'ASC' },
             backgroundColor: { type: 'string', default: '#f9fafb' },
             titleColor: { type: 'string', default: '#111827' },
             cardBackgroundColor: { type: 'string', default: '#ffffff' },
@@ -98,6 +103,10 @@
             const { attributes, setAttributes } = props;
             const { 
                 sectionTitle,
+                dataSource,
+                postsToShow,
+                orderBy,
+                order,
                 backgroundColor,
                 titleColor,
                 cardBackgroundColor,
@@ -121,7 +130,40 @@
             const [selectedStepIndex, setSelectedStepIndex] = useState(null);
             const [expandedStep, setExpandedStep] = useState(null);
 
-            // SOPHISTICATED helper functions for dynamic styling
+            // Fetch Process Step posts from WordPress
+            const processStepPosts = useSelect((select) => {
+                if (dataSource !== 'posts') return [];
+                
+                return select('core').getEntityRecords('postType', 'process_step', {
+                    per_page: postsToShow,
+                    orderby: orderBy,
+                    order: order,
+                    _embed: true
+                });
+            }, [dataSource, postsToShow, orderBy, order]);
+
+            // Convert posts to steps format
+            const getStepsToDisplay = () => {
+                if (dataSource === 'posts' && processStepPosts) {
+                    return processStepPosts.map((post, index) => {
+                        const featuredImage = post._embedded?.['wp:featuredmedia']?.[0];
+                        return {
+                            id: `post-${post.id}`,
+                            stepNumber: String(index + 1).padStart(2, '0'),
+                            title: post.title.rendered,
+                            description: post.excerpt.rendered.replace(/<[^>]*>/g, ''),
+                            imageUrl: featuredImage?.source_url || '',
+                            imageAlt: featuredImage?.alt_text || post.title.rendered,
+                            imageId: featuredImage?.id || null
+                        };
+                    });
+                }
+                return processSteps;
+            };
+
+            const stepsToDisplay = getStepsToDisplay();
+
+            // Helper functions for dynamic styling
             const getGridColumnsClass = () => {
                 const mobileClass = `grid-cols-${columnsMobile}`;
                 const tabletClass = `sm:grid-cols-${columnsTablet}`;
@@ -156,7 +198,7 @@
                 return `hover:shadow-${hoverShadowStyle}`;
             };
 
-            // ADVANCED step management functions
+            // Step management functions (only for custom mode)
             const updateStep = (index, field, value) => {
                 const newSteps = [...processSteps];
                 newSteps[index] = {
@@ -186,7 +228,6 @@
                     return;
                 }
                 const newSteps = processSteps.filter((_, i) => i !== index);
-                // Renumber steps
                 const renumberedSteps = newSteps.map((step, i) => ({
                     ...step,
                     stepNumber: String(i + 1).padStart(2, '0')
@@ -204,7 +245,6 @@
                 const newSteps = [...processSteps];
                 [newSteps[index], newSteps[newIndex]] = [newSteps[newIndex], newSteps[index]];
                 
-                // Renumber steps
                 const renumberedSteps = newSteps.map((step, i) => ({
                     ...step,
                     stepNumber: String(i + 1).padStart(2, '0')
@@ -224,10 +264,82 @@
                 setAttributes({ processSteps: [...processSteps, newStep] });
             };
 
-            // PROFESSIONAL editor preview with realistic styling
             return createElement(Fragment, null,
-                // SOPHISTICATED InspectorControls with multiple panels
                 createElement(InspectorControls, null,
+                    // Data Source Panel
+                    createElement(PanelBody, { 
+                        title: __('Data Source', 'julianboelen'), 
+                        initialOpen: true 
+                    },
+                        createElement(PanelRow, null,
+                            createElement('div', { style: { width: '100%' } },
+                                createElement(RadioControl, {
+                                    label: __('Content Source', 'julianboelen'),
+                                    help: __('Choose between custom steps or Process Step posts', 'julianboelen'),
+                                    selected: dataSource,
+                                    options: [
+                                        { label: __('Custom Steps', 'julianboelen'), value: 'custom' },
+                                        { label: __('Process Step Posts', 'julianboelen'), value: 'posts' }
+                                    ],
+                                    onChange: (value) => setAttributes({ dataSource: value })
+                                })
+                            )
+                        ),
+                        dataSource === 'posts' && createElement(Fragment, null,
+                            createElement(PanelRow, null,
+                                createElement('div', { style: { width: '100%', marginTop: '15px' } },
+                                    createElement(RangeControl, {
+                                        label: __('Number of Posts', 'julianboelen'),
+                                        value: postsToShow,
+                                        onChange: (value) => setAttributes({ postsToShow: value }),
+                                        min: 1,
+                                        max: 12,
+                                        step: 1,
+                                        help: __('How many process steps to display', 'julianboelen')
+                                    })
+                                )
+                            ),
+                            createElement(PanelRow, null,
+                                createElement('div', { style: { width: '100%' } },
+                                    createElement(SelectControl, {
+                                        label: __('Order By', 'julianboelen'),
+                                        value: orderBy,
+                                        options: [
+                                            { label: __('Custom Order (Menu Order)', 'julianboelen'), value: 'menu_order' },
+                                            { label: __('Date Published', 'julianboelen'), value: 'date' },
+                                            { label: __('Title', 'julianboelen'), value: 'title' }
+                                        ],
+                                        onChange: (value) => setAttributes({ orderBy: value })
+                                    })
+                                )
+                            ),
+                            createElement(PanelRow, null,
+                                createElement('div', { style: { width: '100%' } },
+                                    createElement(SelectControl, {
+                                        label: __('Order', 'julianboelen'),
+                                        value: order,
+                                        options: [
+                                            { label: __('Ascending', 'julianboelen'), value: 'ASC' },
+                                            { label: __('Descending', 'julianboelen'), value: 'DESC' }
+                                        ],
+                                        onChange: (value) => setAttributes({ order: value })
+                                    })
+                                )
+                            ),
+                            processStepPosts === null && createElement(PanelRow, null,
+                                createElement('div', { style: { padding: '20px', textAlign: 'center' } },
+                                    createElement(Spinner)
+                                )
+                            ),
+                            processStepPosts && processStepPosts.length === 0 && createElement(PanelRow, null,
+                                createElement(Notice, {
+                                    status: 'warning',
+                                    isDismissible: false
+                                }, __('No Process Step posts found. Create some posts first.', 'julianboelen'))
+                            )
+                        )
+                    ),
+                    
                     createElement(PanelBody, { 
                         title: __('Section Settings', 'julianboelen'), 
                         initialOpen: true 
@@ -491,8 +603,9 @@
                         )
                     ),
                     
-                    createElement(PanelBody, { 
-                        title: __('Process Steps', 'julianboelen'), 
+                    // Custom Steps Panel - only show in custom mode
+                    dataSource === 'custom' && createElement(PanelBody, { 
+                        title: __('Custom Process Steps', 'julianboelen'), 
                         initialOpen: true 
                     },
                         createElement('div', { style: { marginBottom: '15px' } },
@@ -647,7 +760,7 @@
                     )
                 ),
                 
-                // PROFESSIONAL editor preview
+                // Editor preview
                 createElement('section', { 
                     ...useBlockProps({
                         className: `section-process-block w-full px-4 sm:px-6 lg:px-8 ${getPaddingClass()}`,
@@ -667,21 +780,39 @@
                             placeholder: __('Enter section title...', 'julianboelen')
                         }),
                         
-                        createElement('div', {
+                        dataSource === 'posts' && processStepPosts === null && createElement('div', {
+                            style: { textAlign: 'center', padding: '40px' }
+                        },
+                            createElement(Spinner),
+                            createElement('p', { style: { marginTop: '10px' } }, __('Loading process steps...', 'julianboelen'))
+                        ),
+                        
+                        dataSource === 'posts' && processStepPosts && processStepPosts.length === 0 && createElement('div', {
+                            style: { textAlign: 'center', padding: '40px' }
+                        },
+                            createElement(Notice, {
+                                status: 'warning',
+                                isDismissible: false
+                            }, __('No Process Step posts found. Please create some posts or switch to custom mode.', 'julianboelen'))
+                        ),
+                        
+                        stepsToDisplay.length > 0 && createElement('div', {
                             className: `grid ${getGridColumnsClass()} ${getGapClass()}`
                         },
-                            processSteps.map((step, index) => 
+                            stepsToDisplay.map((step, index) => 
                                 createElement('div', {
                                     key: step.id,
                                     className: `${getBorderRadiusClass(cardBorderRadius)} ${getShadowClass(shadowStyle)} ${getHoverShadowClass()} overflow-hidden transition-shadow duration-300`,
                                     style: {
                                         backgroundColor: cardBackgroundColor,
-                                        cursor: 'pointer',
+                                        cursor: dataSource === 'custom' ? 'pointer' : 'default',
                                         border: selectedStepIndex === index ? '2px solid #2271b1' : 'none'
                                     },
                                     onClick: () => {
-                                        setSelectedStepIndex(index);
-                                        setExpandedStep(index);
+                                        if (dataSource === 'custom') {
+                                            setSelectedStepIndex(index);
+                                            setExpandedStep(index);
+                                        }
                                     }
                                 },
                                     createElement('div', {
